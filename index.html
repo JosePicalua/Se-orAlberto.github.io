@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Tramites Tesoreria - Alcaldía El Banco</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="src/component/ccs/index.css">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ALCALDÍA DE EL BANCO</h1>
+            <p>Departamento del Magdalena - PROCESO ADMINISTRATIVO COACTIVO
+
+        <div class="main-menu">
+            <div class="menu-option" onclick="openModal('persuasivo')">
+                <h2>2. Realizar Oblicación Tributaria Por Concepto de Impuesto Predial</h2>
+                <p>Segundo Paso</p>
+            </div>
+            <div class="menu-option" onclick="openModal('coactivo')">
+                <h2>3. Realizar Mandamiento de Pago + Citación OTMIPUMP</h2>
+                <p>Tercer Paso</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Persuasivo -->
+    <div id="modalPersuasivo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Realizar Persuasivo</h2>
+                <button class="close-btn" onclick="closeModal('persuasivo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; color: #666; padding: 40px;">
+                    Módulo de procesos persuasivos próximamente disponible
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Coactivo -->
+    <div id="modalCoactivo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mandamiento de Pago Coactivo</h2>
+                <button class="close-btn" onclick="closeModal('coactivo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="coactivoForm">
+                    <div class="form-group">
+                        <label>Número de Mandamiento (OTMIPUMP2025****)</label>
+                        <input type="number" id="numeroMandamiento" placeholder="Ej: 0023" required>
+                        <span class="error-message" id="errorMandamiento">Este campo es obligatorio</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Número de Factura</label>
+                            <input type="text" id="numeroFactura" placeholder="Número de factura" required>
+                            <span class="error-message" id="errorFactura">Este campo es obligatorio</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número de Cédula</label>
+                            <input type="text" id="numeroCedula" placeholder="Ej: 1.234.567" required>
+                            <span class="error-message" id="errorCedula">Este campo es obligatorio</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre del Contribuyente</label>
+                        <input type="text" id="nombreContribuyente" placeholder="Nombre completo" required>
+                        <span class="error-message" id="errorNombre">Este campo es obligatorio</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Años Parafiscal</label>
+                            <input type="text" id="anosParafiscal" placeholder="Ej: 2024-2025" required>
+                            <span class="error-message" id="errorAnos">Este campo es obligatorio</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número Catastral</label>
+                            <input type="text" id="numeroCatastro" placeholder="Número catastral" required>
+                            <span class="error-message" id="errorCatastro">Este campo es obligatorio</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dirección del Predio</label>
+                        <input type="text" id="direccion" placeholder="Ej: Calle 7 #12-85" required>
+                        <span class="error-message" id="errorDireccion">Este campo es obligatorio</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Matrícula Inmobiliaria</label>
+                        <input type="text" id="numeroInmobiliario" placeholder="Ej: 123-456789" required>
+                        <span class="error-message" id="errorInmobiliario">Este campo es obligatorio</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total de Deuda</label>
+                        <textarea id="totalDeuda" placeholder="Ej: DOS MILLONES QUINIENTOS MIL PESOS ($2.500.000)" required></textarea>
+                        <span class="error-message" id="errorDeuda">Este campo es obligatorio</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número de Radicación</label>
+                        <input type="text" id="numeroRadicacion" placeholder="Número de radicación" required>
+                        <span class="error-message" id="errorRadicacion">Este campo es obligatorio</span>
+                    </div>
+
+                    <button type="submit" class="btn">GENERAR PDF</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <!-- Modal Confirmación -->
+<div id="modalConfirm" class="modal">
+    <div class="confirm-modal">
+        <div class="confirm-header">
+            <h2>Confirmar Generación de PDF</h2>
+        </div>
+        <div class="confirm-body">
+            <p style="color: #2e7d32; font-weight: 600; margin-bottom: 15px;">
+                ¿Está seguro de generar el PDF con estos datos?
+            </p>
+            <div class="confirm-data" id="confirmData"></div>
+            <div class="confirm-buttons">
+                <button class="btn-modify" onclick="modifyData()">Modificar</button>
+                <button class="btn-confirm" onclick="confirmGenerate()">Sí, Generar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay de carga -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text">Generando PDF, por favor espere...</div>
+    </div>
+</div>
+    <script src="src/component/javascript/mandamientoDePago.js"></script>
+    <script src="src/component/javascript/formularioMandamiedoPago.js"></script>
+
+    <script>
+        
+    </script>
+    
+</body>
+</html>
