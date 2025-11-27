@@ -458,7 +458,7 @@ async function generarPDF() {
     doc.setFont('helvetica', 'normal');
     doc.text('Tesorero Municipal', pageWidth / 2, y, { align: 'center' });
 
-    const nombreArchivo = `${datos.numeroMandamiento}_${datos.nombreContribuyente.replace(/\s+/g, '_')}.pdf`;
+    const nombreArchivo = `${datos.numeroMandamiento}_${datos.nombreContribuyente.replace(/\s+/g,)}_${datos.numeroRadicacion}.pdf`;
     console.log('Guardando PDF como:', nombreArchivo);
     doc.save(nombreArchivo);
     
