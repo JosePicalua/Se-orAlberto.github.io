@@ -147,7 +147,7 @@ async function generarPDFCitacion() {
     
     // Cuerpo del texto - JUSTIFICADO MANUAL
     doc.setFont('helvetica', 'normal');
-    const texto1 = `Sírvase comparecer personalmente ante la Tesorería Municipal de El Banco, Magdalena, ubicada en la calle 7 No. 12-85, Palacio Municipal, Oficina de Tesorería, en horas hábiles dentro del término de diez (10) días hábiles contados a partir de la recepción de la presente citación, para efectos de la notificación personal de la resolución Mandamiento de Pago N° ${datos.numeroMandamiento}, del 10 de noviembre de 2025, librado dentro del proceso de referencia.`;
+    const texto1 = `Sírvase comparecer personalmente ante la Tesorería Municipal de El Banco, Magdalena, ubicada en la calle 7 No. 12-85, Palacio Municipal, Oficina de Tesorería, en horas hábiles dentro del término de diez (10) días hábiles contados a partir de la recepción de la presente citación, para efectos de la notificación personal de la resolución Mandamiento de Pago N° ${datos.numeroMandamiento}, del ${datos.fecha}, librado dentro del proceso de referencia.`;
     
     const lineas1 = justificarTexto(texto1, maxWidth, doc);
     for (let i = 0; i < lineas1.length; i++) {

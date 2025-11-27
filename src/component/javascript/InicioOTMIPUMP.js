@@ -458,7 +458,13 @@ async function generarPDF() {
     doc.setFont('helvetica', 'normal');
     doc.text('Tesorero Municipal', pageWidth / 2, y, { align: 'center' });
 
-    const nombreArchivo = `${datos.numeroMandamiento}_${datos.nombreContribuyente.replace(/\s+/g,)}_${datos.numeroRadicacion}.pdf`;
+    const nombreLimpio = datos.nombreContribuyente
+    .trim()                           // Quitar espacios inicio/fin
+    .replace(/\s+/g, '_')             // Espacios múltiples → un solo guión bajo
+    .replace(/[^a-zA-Z0-9_]/g, '')    // Eliminar caracteres especiales
+    .substring(0, 50);  
+
+    const nombreArchivo = `${datos.numeroMandamiento}_${nombreLimpio}_${datos.numeroRadicacion}.pdf`;
     console.log('Guardando PDF como:', nombreArchivo);
     doc.save(nombreArchivo);
     

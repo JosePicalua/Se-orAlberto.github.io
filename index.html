@@ -15,13 +15,21 @@
             <p>Departamento del Magdalena - PROCESO ADMINISTRATIVO COACTIVO
 
         <div class="main-menu">
-            <div class="menu-option" onclick="openModal('persuasivo')">
-                <h2>2. Realizar Oblicación Tributaria Por Concepto de Impuesto Predial</h2>
+           <div class="menu-option" onclick="openModalPersuasivo('notificacionPersuasivo')">
+                <h2>1. Realizar Oficio Persuacivo</h2>
+                <p>Primer Paso</p>
+            </div>
+            <div class="menu-option" onclick="openModalResolucion('notoficacionResolucion')">
+                <h2>2. Realizar Pos Persuacivo - Oblicación Tributaria Por Concepto de Impuesto Predial (Resolucion)</h2>
                 <p>Segundo Paso</p>
             </div>
             <div class="menu-option" onclick="openModal('coactivo')">
-                <h2>3. Realizar Mandamiento de Pago + Citación OTMIPUMP</h2>
+                <h2>3. Realizar Pos OTCIP Mandamiento de Pago (OTMIPUMP)+ Citación Pos (OTMIPUMP)</h2>
                 <p>Tercer Paso</p>
+            </div>
+            <div class="menu-option" onclick="openModalBancaria('notificacionBancaria')">
+                <h2>3.1 Realizar Oficio Bancario</h2>
+                <p>Oficios Bacarios Individual</p>
             </div>
         </div>
     </div>
@@ -152,9 +160,13 @@
 
     <!-- TUS ARCHIVOS (en este orden CRÍTICO) -->
     <script src="src/component/javascript/pdf-utils.js"></script>           <!-- 1. Primero las funciones compartidas -->
-    <script src="src/component/javascript/InicioOTMIPUMP.js"></script>          <!-- 2. Luego Mandamiento -->
-    <script src="src/component/javascript/CitacionOTMIPUMP.js"></script>     <!-- 3. Luego Citación -->
-    <script src="src/component/javascript/notifications.js"></script>        <!-- 4. Por último el control -->
+    <script src="src/component/javascript/InicioOTMIPUMP.js"></script>          <!-- 2.CODIGO DE CREAR MANDAMIENTO DE PAGO -->
+    <script src="src/component/javascript/CitacionOTMIPUMP.js"></script>     <!-- 3. CODIGO DE CITACION -->
+    <script src="src/component/javascript/notifications.js"></script> 
+    <script src="src/page/javacritp/modales.js"></script>  <!-- MODALES PARA ABRIR -->
+    
+         
         
+    
 </body>
 </html>

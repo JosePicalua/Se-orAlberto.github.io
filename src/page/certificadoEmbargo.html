@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador PDF - Embargo Municipal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="./css/certifcadoBanco.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Generador de PDF - Embargo Municipal</h1>
+            <p>Sistema de generación de oficios de embargo coactivo</p>
+        </div>
+        
+        <div class="content">
+            <form id="embargoForm">
+                <div class="form-section">
+                    <div class="section-title">📅 Información de Fechas</div>
+                    
+                    <div class="form-group">
+                        <label>Fecha Base del Documento (se sumará 10 días):</label>
+                        <input type="date" id="fecha" required>
+                        <div class="input-hint">Se generará automáticamente la fecha del oficio (+10 días)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fecha de Resolución (Completa):</label>
+                        <input 
+                            type="text" 
+                            id="fechaResolucion" 
+                            placeholder="Ej: 25 DE NOVIEMBRE DE 2025"
+                            style="text-transform: uppercase;"
+                            required>
+                        <div class="input-hint">Formato: DD DE MES DE AAAA (automático en mayúsculas)</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">👤 Datos del Contribuyente</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre del Contribuyente:</label>
+                            <input 
+                                type="text" 
+                                id="nombreContribuyente" 
+                                placeholder="NOMBRE COMPLETO"
+                                style="text-transform: uppercase;"
+                                required>
+                            <div class="input-hint">Se convertirá automáticamente a mayúsculas</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cédula del Contribuyente:</label>
+                            <input 
+                                type="text" 
+                                id="cedulaContribuyente" 
+                                placeholder="1.234.567"
+                                required>
+                            <div class="input-hint">Use puntos como separadores de miles</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">📋 Información de la Resolución</div>
+                    
+                    <div class="form-group">
+                        <label>Número de Resolución:</label>
+                        <input 
+                            type="text" 
+                            id="numResolucion" 
+                            placeholder="OTMIPUMP20250001"
+                            style="text-transform: uppercase;"
+                            required>
+                        <div class="input-hint">Código de la resolución (automático en mayúsculas)</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">💰 Información de la Deuda</div>
+                    
+                    <div class="form-group">
+                        <label>Monto de la Deuda (en Texto):</label>
+                        <input 
+                            type="text" 
+                            id="deudaTexto" 
+                            placeholder="SEIS MILLONES QUINIENTOS MIL PESOS M/CTE"
+                            style="text-transform: uppercase;"
+                            required>
+                        <div class="input-hint">Escriba el monto en letras (automático en mayúsculas)</div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="button" class="btn btn-primary" onclick="previsualizarPDF()">
+                        <span>🔍 Previsualizar PDF</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="descargarPDFs()">
+                        <span>💾 Descargar Todos los PDFs</span>
+                    </button>
+                </div>
+            </form>
+            
+            <div id="previewArea" class="preview-area">
+                <h3>Vista Previa del Documento:</h3>
+                <iframe id="pdfPreview"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="./javacritp/certificadoBanco.js"></script>
+     
+</body>
+</html>
