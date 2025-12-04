@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Número de Resolución Pos Persuacivo</title>
+    <link rel="stylesheet" href="./css/numeroResolucion.css">
+</head>
+<body>
+
+    <form id='optionFormualarioResolucion'>
+            <div class="row">
+
+                <div class="form-section">
+                    <label for="fechaResolucion">Fecha de Resolución</label>
+                    <input type="text" id="fechaResolucion" placeholder="Fecha del dia que genera la Resoklucion" required>
+                    <span class="error-message" id="fechaResolucion">Fecha de Resolución</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="numeroResolucion">Numero de Resolución:</label>
+                    <input type="text" id="numeroResolucion" placeholder="0001" required>
+                    <span class="error-message" id="numeroResolucion">Numero Resoklucion</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="numeroCedula">Numero de Cedula del Contribuyente</label>
+                    <input type="text" id="numeroCedula" placeholder="1.234.567.890" required>
+                    <span class="error-message" id="numeroCedula">Numero de Cedula de Contribuyente</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="nombreContribuyente">Nombre del Contribuyente</label>
+                    <input type="text" id="nombreContribuyente" placeholder="Nombre del Contribuyente" required>
+                    <span class="error-message" id="nombreContribuyente">Nombre del Contribuyente</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="referencia">Referencia Catastral:</label>
+                    <input type="text" id="referencia" placeholder="4724500101000000390015000000000" required>
+                    <span class="error-message" id="referenciaError">Campo requerido (solo números)</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="direccion">Direccion del Predio</label>
+                    <input type="text" id="direccion" placeholder="Calle, Carrera, Diagonal o Rural" required>
+                    <span class="error-message" id="direccion">Direccion del Predio</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="numeroFcactura">Numero de Factura del Predio</label>
+                    <input type="text" id="numeroFcactura" placeholder="Numero de Factura del Predio" required>
+                    <span class="error-message" id="numeroFcactura">Numero de Factura del Predio</span>
+                </div>
+
+                <div class="form-section">
+                    <label for="totalFactura">Total Unificado del Parecio del Predio</label>
+                    <input type="text" id="totalFactura" placeholder="Total Unificado del Parecio del Predio" required>
+                    <span class="error-message" id="totalFactura">Total Unificado del Parecio del Predio</span>
+                </div>                
+            </div>
+    </form> 
+
+    <div class="totalprecioUnificadoAntiguo">
+        <input type="number" id="totalprecioUnificadoAntiguo" placeholder="Suma Total"  value="">
+    </di>
+
+    <div class="container">
+        <!-- Botones de toggle -->
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" onclick="mostrarFormulario('actual')">
+                📅 Vigencia Actual
+                <span class="form-badge">Año en curso</span>
+            </button>
+            <button class="toggle-btn" onclick="mostrarFormulario('antiguo')">
+                📜 Vigencias Anteriores
+                <span class="form-badge">Años anteriores</span>
+            </button>
+        </div>
+
+        <!-- Formulario Vigencia Actual -->
+        <div class="form-wrapper active" id="wrapperActual">
+            <form action="añosdeVigenciaPredial" id="formVigenciaActual">
+                <div>
+                    <label for="añoPredialFactura">Digite Años de Factura del Predio</label>
+                    <input type="text" id="añoPredialFactura" placeholder="Digite Años de Factura del Predio" value="ACTUAL">
+                </div>
+
+                <table id="conceptoVigenciaActual" border="1">
+                    <tr>    
+                        <th>Predial Unificado</th>
+                        <th>Sobretasa del Medio Ambiente</th>
+                        <th>Sistematización de Recibo</th>
+                        <th>Sobretasa Bomberil</th>
+                        <th>Total</th>
+                    </tr>
+
+                    <tr>
+                        <td><input type="number" name="predial_unificado" placeholder="$0"></td>
+                        <td><input type="number" name="sobretasa_ambiente" placeholder="$0"></td>
+                        <td><input type="number" name="sistematizacion" placeholder="$0"></td>
+                        <td><input type="number" name="sobretasa_bomberil" placeholder="$0"></td>
+                        <td><input type="number" name="total" placeholder="$0" readonly></td>
+                    </tr>
+                </table>
+
+                <button type="submit">Guardar Vigencia Actual</button>
+            </form>
+        </div>
+
+        <!-- Formulario Vigencias Antiguas -->
+        <div class="form-wrapper" id="wrapperAntiguo">
+            <form action="añosdeVigenciaPredialAntiguos" id="formVigenciaAntiguo">
+                <div>
+                    <label for="añoPredialFacturaAntiguo">Digite Años de Factura del Predio</label>
+                    <input type="text" id="añoPredialFacturaAntiguo" placeholder="Digite Años" required>
+                </div>
+
+                <table id="conceptoVigenciaAntiguo" border="1">
+                    <tr>    
+                        <th>Predial</th>
+                        <th>Sobretasa del Medio Ambiente</th>
+                        <th>Sobretasa Bomberil</th>
+                        <th>Sub. Total</th>
+                        <th>Mora Predial</th>
+                        <th>Mora Sobretasa del Medio Ambiente</th>
+                        <th>Total</th>
+                    </tr>
+
+                    <tr>
+                        <td><input type="number" name="predial_antiguo" placeholder="$0"></td>
+                        <td><input type="number" name="sobretasa_ambiente_antiguo" placeholder="$0"></td>
+                        <td><input type="number" name="sobretasa_bomberil_antiguo" placeholder="$0"></td>
+                        <td><input type="number" name="sub_total_antiguo" placeholder="$0" readonly></td>
+                        <td><input type="number" name="mora_predial" placeholder="$0"></td>
+                        <td><input type="number" name="mora_sobretasa_ambiente" placeholder="$0"></td>
+                        <td><input type="number" name="total_antiguo" placeholder="$0" readonly></td>
+                    </tr>
+                </table>
+
+                <button type="submit">Guardar Vigencia Antigua</button>
+            </form>
+        </div>
+    </div>
+
+    
+
+
+
+    <footer>
+        <p>&copy; 2024 - 2027 Alcaldía de El Banco Magdalena (Tesoreria)</p>
+    </footer>
+</body>
+</html>

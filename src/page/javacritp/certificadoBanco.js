@@ -20,16 +20,70 @@ const bancos = [
         direccion: "Carrera 13 # 27-00"
     },
     {
-        codigo: "COLPATRIA",
-        nombre: "BANCO COLPATRIA",
-        ciudad: "Santa Marta",
-        direccion: "Calle 11 # 5-50"
+        codigo: "BANCO_OCCIDENTE",
+        nombre: "BANCO DE OCCIDENTE",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Kra. 13 N° 27-47"
     },
     {
-        codigo: "BANCOLOMBIA",
-        nombre: "BANCOLOMBIA",
+        codigo: "BANCO_CORBANCIA_HELM_BANK ",
+        nombre: "BANCO CORBANCIA HELM BANK ",
+        ciudad: "Kra. 7 N° 75-66 Piso 7 ",  
+        direccion: "Kra. 13 N° 27-47"
+    },
+    {
+        codigo: "BANCO_DAVIVIENDA",
+        nombre: "BANCO DAVIVIENDA",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Avenida el Dorado N° 68C- 61 Piso 10"
+    },
+    {
+        codigo: "BANCO_BANCOOMEVA",
+        nombre: "BANCO BANCOOMEVA",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Avenida el Dorado N° 68C- 61 Piso 10"
+    },
+    {
+        codigo: "BANCO_CAJA_SOCIAL",
+        nombre: "BANCO CAJA SOCIAL",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Kra. 7 N° 77 -65"
+    },
+    {
+        codigo: "BANCO_GNB_SUDAMERIS",
+        nombre: "BANCO GNB SUDAMERIS",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Kra. 7 N° 75-87 correspondencia por la Kra 8"
+    },
+    {
+        codigo: "BANCO_WWB",
+        nombre: "BANCO WWB",
+        ciudad: "Cali Valle del Cauca.",  
+        direccion: "Avenida 5 N° 16N-57"
+    },
+    {
+        codigo: "BANCO_CITIBANK",
+        nombre: "BANCO CITIBANK",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Kra. 9ª N° 99 -02"
+    },
+    {
+        codigo: "BANCO_POPULAR",
+        nombre: "BANCO POPULAR",
+        ciudad: "Bogotá D.C.",  
+        direccion: "Kra. 7 N° 7 -43 Piso 4"
+    },
+    {
+        codigo: "COLPATRIA",
+        nombre: "BANCO COLPATRIA",
         ciudad: "Bogotá D.C.",
-        direccion: "Carrera 48 # 26-85"
+        direccion: "Kra. 7 N° 24 -89 Piso 10"
+    },
+    {
+        codigo: "BANCO_BANCOLOMBIA",
+        nombre: "BANCO BANCOLOMBIA",
+        ciudad: "Bogotá D.C.",
+        direccion: "Kra. 7 N° 30-28 "
     },
     {
         codigo: "BANCO_AGRARIO",
@@ -87,7 +141,7 @@ function obtenerDatosFormulario() {
     let fechaAumentada = '';
     if (fechaBase) {
         const fecha = new Date(fechaBase + 'T00:00:00');
-        fecha.setDate(fecha.getDate() + 10);
+        //fecha.setDate(fecha.getDate() + 10); si se quieren los 10 dias, quitar //
         
         const año = fecha.getFullYear();
         const mes = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -104,6 +158,7 @@ function obtenerDatosFormulario() {
     const fechaResolucionInput = document.getElementById('fechaResolucion');
     const deudaTextoInput = document.getElementById('deudaTexto');
     const deudaValorInput = document.getElementById('deudaValor');
+
     
     return {
         fecha: fechaAumentada,

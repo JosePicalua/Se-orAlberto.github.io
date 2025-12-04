@@ -1,5 +1,4 @@
 const { jsPDF } = window.jspdf;
-let datosValidados = null;
 
 // Función para convertir número a letras
 function numeroALetras(num) {
@@ -50,6 +49,161 @@ function obtenerFechaTexto() {
     return `${numeroALetras(dia)} (${dia}) día del mes de ${mes} año ${anio}`;
 }
 
+// Función mejorada para texto justificado
+function textoJustificado(doc, texto, x, y, anchoMaximo, interlineado = 0.5) {
+    const palabras = texto.split(' ');
+    let linea = '';
+    let lineas = [];
+    
+    // Dividir en líneas
+    palabras.forEach(palabra => {
+        const pruebaLinea = linea + (linea ? ' ' : '') + palabra;
+        const anchoLinea = doc.getTextWidth(pruebaLinea);
+        
+        if (anchoLinea > anchoMaximo && linea) {
+            lineas.push(linea);
+            linea = palabra;
+        } else {
+            linea = pruebaLinea;
+        }
+    });
+    
+    if (linea) lineas.push(linea);
+    
+    // Renderizar líneas justificadas
+    let yActual = y;
+    lineas.forEach((lineaTexto, index) => {
+        const esUltimaLinea = index === lineas.length - 1;
+        
+        if (esUltimaLinea) {
+            // Última línea: alineada a la izquierda
+            doc.text(lineaTexto, x, yActual);
+        } else {
+            // Justificar distribuyendo espacios
+            const palabrasLinea = lineaTexto.split(' ');
+            
+            if (palabrasLinea.length === 1) {
+                doc.text(lineaTexto, x, yActual);
+            } else {
+                const anchoTextoSinEspacios = palabrasLinea.reduce((sum, p) => sum + doc.getTextWidth(p), 0);
+                const espacioTotal = anchoMaximo - anchoTextoSinEspacios;
+                const espacioPorGap = espacioTotal / (palabrasLinea.length - 1);
+                
+                let xActual = x;
+                palabrasLinea.forEach((palabra, i) => {
+                    doc.text(palabra, xActual, yActual);
+                    xActual += doc.getTextWidth(palabra) + espacioPorGap;
+                });
+            }
+        }
+        
+        yActual += interlineado;
+    });
+    
+    return yActual;
+}
+
+// Función CORREGIDA para texto justificado con partes en negrita
+function textoJustificadoConNegrita(doc, partes, x, y, anchoMaximo, interlineado = 0.5) {
+    // Construir texto completo
+    let textoCompleto = partes.map(p => p.texto).join('');
+    
+    // Dividir en palabras manteniendo su índice en el texto original
+    const palabras = [];
+    let pos = 0;
+    textoCompleto.split(' ').forEach(palabra => {
+        palabras.push({
+            texto: palabra,
+            inicio: pos,
+            fin: pos + palabra.length
+        });
+        pos += palabra.length + 1; // +1 por el espacio
+    });
+    
+    // Determinar qué palabras son negritas
+    palabras.forEach(palabra => {
+        palabra.negrita = false;
+        partes.forEach(parte => {
+            if (!parte.negrita) return;
+            
+            const inicioParte = textoCompleto.indexOf(parte.texto);
+            const finParte = inicioParte + parte.texto.length;
+            
+            // Si la palabra está dentro de una parte en negrita
+            if (palabra.inicio >= inicioParte && palabra.fin <= finParte) {
+                palabra.negrita = true;
+            }
+        });
+    });
+    
+    // Agrupar palabras en líneas
+    let linea = [];
+    let lineas = [];
+    
+    palabras.forEach(palabra => {
+        const textoLinea = [...linea, palabra].map(p => p.texto).join(' ');
+        
+        // Calcular ancho considerando el formato
+        doc.setFont('helvetica', 'normal');
+        let anchoLinea = 0;
+        [...linea, palabra].forEach(p => {
+            doc.setFont('helvetica', p.negrita ? 'bold' : 'normal');
+            anchoLinea += doc.getTextWidth(p.texto);
+        });
+        anchoLinea += (linea.length) * doc.getTextWidth(' '); // espacios
+        
+        if (anchoLinea > anchoMaximo && linea.length > 0) {
+            lineas.push([...linea]);
+            linea = [palabra];
+        } else {
+            linea.push(palabra);
+        }
+    });
+    
+    if (linea.length > 0) lineas.push(linea);
+    
+    // Renderizar líneas justificadas
+    let yActual = y;
+    lineas.forEach((lineaPalabras, index) => {
+        const esUltimaLinea = index === lineas.length - 1;
+        
+        if (esUltimaLinea || lineaPalabras.length === 1) {
+            // Última línea o línea con una sola palabra: sin justificar
+            let xActual = x;
+            lineaPalabras.forEach((palabra, i) => {
+                doc.setFont('helvetica', palabra.negrita ? 'bold' : 'normal');
+                doc.text(palabra.texto, xActual, yActual);
+                xActual += doc.getTextWidth(palabra.texto);
+                if (i < lineaPalabras.length - 1) {
+                    xActual += doc.getTextWidth(' ');
+                }
+            });
+        } else {
+            // Justificar
+            let anchoTextoSinEspacios = 0;
+            lineaPalabras.forEach(palabra => {
+                doc.setFont('helvetica', palabra.negrita ? 'bold' : 'normal');
+                anchoTextoSinEspacios += doc.getTextWidth(palabra.texto);
+            });
+            
+            const espacioTotal = anchoMaximo - anchoTextoSinEspacios;
+            const espacioPorGap = espacioTotal / (lineaPalabras.length - 1);
+            
+            let xActual = x;
+            lineaPalabras.forEach((palabra, i) => {
+                doc.setFont('helvetica', palabra.negrita ? 'bold' : 'normal');
+                doc.text(palabra.texto, xActual, yActual);
+                xActual += doc.getTextWidth(palabra.texto) + espacioPorGap;
+            });
+        }
+        
+        yActual += interlineado;
+    });
+    
+    doc.setFont('helvetica', 'normal');
+    return yActual;
+}
+
 function validarFormulario() {
     let valido = true;
     const campos = ['periodo', 'numeroOficio', 'contribuyente', 'cedula', 'referencia', 'direccion', 'valor'];
@@ -60,65 +214,70 @@ function validarFormulario() {
         
         if (!input.value.trim()) {
             input.classList.add('error');
-            errorMsg.style.display = 'block';
+            if (errorMsg) errorMsg.style.display = 'block';
             valido = false;
         } else {
             input.classList.remove('error');
-            errorMsg.style.display = 'none';
+            if (errorMsg) errorMsg.style.display = 'none';
         }
     });
 
-    // Validaciones específicas
     const periodo = document.getElementById('periodo').value;
     if (periodo && !/^\d{4}-\d{4}$/.test(periodo)) {
         document.getElementById('periodo').classList.add('error');
-        document.getElementById('periodoError').textContent = 'Formato inválido (AAAA-AAAA)';
-        document.getElementById('periodoError').style.display = 'block';
+        const periodoError = document.getElementById('periodoError');
+        if (periodoError) {
+            periodoError.textContent = 'Formato inválido (AAAA-AAAA)';
+            periodoError.style.display = 'block';
+        }
         valido = false;
     }
 
     const numeroOficio = document.getElementById('numeroOficio').value;
     if (numeroOficio && !/^\d{4}$/.test(numeroOficio)) {
         document.getElementById('numeroOficio').classList.add('error');
-        document.getElementById('numeroOficioError').textContent = 'Debe ser 4 dígitos';
-        document.getElementById('numeroOficioError').style.display = 'block';
+        const numeroOficioError = document.getElementById('numeroOficioError');
+        if (numeroOficioError) {
+            numeroOficioError.textContent = 'Debe ser 4 dígitos';
+            numeroOficioError.style.display = 'block';
+        }
         valido = false;
     }
 
     const referencia = document.getElementById('referencia').value;
     if (referencia && !/^\d+$/.test(referencia)) {
         document.getElementById('referencia').classList.add('error');
-        document.getElementById('referenciaError').textContent = 'Solo números permitidos';
-        document.getElementById('referenciaError').style.display = 'block';
+        const referenciaError = document.getElementById('referenciaError');
+        if (referenciaError) {
+            referenciaError.textContent = 'Solo números permitidos';
+            referenciaError.style.display = 'block';
+        }
         valido = false;
     }
 
     return valido;
 }
 
-document.getElementById('oficioForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    if (validarFormulario()) {
-        datosValidados = {
-            periodo: document.getElementById('periodo').value,
-            numeroOficio: document.getElementById('numeroOficio').value.padStart(4, '0'),
-            contribuyente: document.getElementById('contribuyente').value.toUpperCase(),
-            cedula: document.getElementById('cedula').value,
-            referencia: document.getElementById('referencia').value,
-            direccion: document.getElementById('direccion').value,
-            valor: document.getElementById('valor').value,
-            periodoLetras: convertirPeriodoALetras(document.getElementById('periodo').value),
-            fecha: obtenerFechaTexto()
-        };
-
-        alert('Formulario validado correctamente. Puede generar el PDF.');
-        document.getElementById('generarPDF').disabled = false;
-    }
-});
-
+// Generar PDF directamente sin validación previa
 document.getElementById('generarPDF').addEventListener('click', async function() {
-    if (!datosValidados) return;
+    // Validar antes de generar
+    if (!validarFormulario()) {
+        alert('Por favor complete todos los campos correctamente');
+        return;
+    }
+
+    // Obtener datos del formulario
+    const datosValidados = {
+        periodo: document.getElementById('periodo').value,
+        numeroOficio: document.getElementById('numeroOficio').value.padStart(4, '0'),
+        contribuyente: document.getElementById('contribuyente').value.toUpperCase(),
+        cedula: document.getElementById('cedula').value,
+        referencia: document.getElementById('referencia').value,
+        direccion: document.getElementById('direccion').value,
+        valor: document.getElementById('valor').value,
+        periodoLetras: convertirPeriodoALetras(document.getElementById('periodo').value),
+        fecha: obtenerFechaTexto()
+    };
 
     const doc = new jsPDF({
         orientation: 'portrait',
@@ -126,7 +285,6 @@ document.getElementById('generarPDF').addEventListener('click', async function()
         format: [21.59, 35.56]
     });
 
-    // Configurar marca de agua - tamaño completo de la hoja
     try {
         const response = await fetch('../component/img/marcadeaguaTESORERIAMUNICIPAL.png');
         const blob = await response.blob();
@@ -134,21 +292,18 @@ document.getElementById('generarPDF').addEventListener('click', async function()
         
         reader.onloadend = function() {
             const imgData = reader.result;
-            
-            // Marca de agua del tamaño completo de la hoja
             doc.addImage(imgData, 'PNG', 0, 0, 21.59, 35.56, undefined, 'NONE');
-            
-            generarContenidoPDF(doc);
+            generarContenidoPDF(doc, datosValidados);
         };
         
         reader.readAsDataURL(blob);
     } catch (error) {
         console.error('Error cargando marca de agua:', error);
-        generarContenidoPDF(doc);
+        generarContenidoPDF(doc, datosValidados);
     }
 });
 
-function generarContenidoPDF(doc) {
+function generarContenidoPDF(doc, datosValidados) {
     const margenIzq = 4.5;
     const margenDer = 2.5;
     const margenSup = 5.0;
@@ -162,7 +317,7 @@ function generarContenidoPDF(doc) {
     doc.text(tituloOficio, 21.59 / 2, y, { align: 'center' });
     y += 1.2;
 
-    // Tabla con líneas delgadas y más presentable
+    // Tabla
     doc.setFontSize(11);
     const filas = [
         ['IMPUESTO', 'PREDIO UNIFICADO'],
@@ -177,7 +332,6 @@ function generarContenidoPDF(doc) {
     const col1Width = 6;
     const col2Width = anchoUtil - col1Width;
 
-    // Configurar líneas delgadas
     doc.setLineWidth(0.01);
 
     filas.forEach(fila => {
@@ -194,147 +348,64 @@ function generarContenidoPDF(doc) {
 
     y += 1;
 
-    // Cuerpo del texto - Tamaño 11
+    // PÁRRAFO 1 - con negrita
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
-
-    const textos = [
-        `El suscrito Tesorero Municipal de El Banco, Magdalena, en uso de las facultades que le confieren los artículos 533, del Acuerdo Municipal Nº. 018 del 30 de diciembre de 2016, Decreto Municipal Nº 048 de 2024, y el Estatuto Tributario Nacional, se permite comunicar(s) que esta dependencia se encuentra adelantando proceso de `,
-        { text: 'Cobro Administrativo Coactivo', bold: true },
-        ` a todos los contribuyentes que se encuentran en mora en el pago de Impuestos Predial Unificado.`
-    ];
-
-    let texto1 = textos[0] + textos[1].text + textos[2];
-    let lineas1 = doc.splitTextToSize(texto1, anchoUtil);
-    lineas1.forEach(linea => {
-        if (linea.includes('Cobro Administrativo Coactivo')) {
-            const partes = linea.split('Cobro Administrativo Coactivo');
-            let xPos = margenIzq;
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[0], xPos, y);
-            xPos += doc.getTextWidth(partes[0]);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Cobro Administrativo Coactivo', xPos, y);
-            xPos += doc.getTextWidth('Cobro Administrativo Coactivo');
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[1] || '', xPos, y);
-        } else {
-            doc.setFont('helvetica', 'normal');
-            doc.text(linea, margenIzq, y, { align: 'justify', maxWidth: anchoUtil });
-        }
-        y += 0.5;
-    });
-
-    y += 0.3;
-
-    const texto2 = `Por lo anterior se le notifica de la obligación tributaria que ostenta con la Alcaldía de El Banco, Magdalena, por concepto del NO pago del impuesto Predial Unificado de la(s) vigencia(s) del año, ${datosValidados.periodoLetras} (${datosValidados.periodo}), mediante la (s) cual (es) se determina su obligación por valor de `;
-    let lineas2 = doc.splitTextToSize(texto2, anchoUtil);
-    lineas2.forEach(linea => {
-        doc.text(linea, margenIzq, y, { align: 'justify', maxWidth: anchoUtil });
-        y += 0.5;
-    });
-
-    doc.setFont('helvetica', 'bold');
-    let lineasValor = doc.splitTextToSize(datosValidados.valor, anchoUtil);
-    lineasValor.forEach(linea => {
-        doc.text(linea, margenIzq, y);
-        y += 0.5;
-    });
-
-    y += 0.3;
-
-    doc.setFont('helvetica', 'normal');
-    const texto3 = `En consecuencia, se le solicita que `;
-    const texto3Bold = `dentro de los cinco (5) días`;
-    const texto3Cont = ` siguientes al recibido de esta comunicación, cumpla con su obligación y cancele los valores adeudados por concepto de pago del Impuesto Predial Unificado aquí señalados.`;
     
-    let lineaActual = texto3 + texto3Bold + texto3Cont;
-    let lineas3 = doc.splitTextToSize(lineaActual, anchoUtil);
-    lineas3.forEach(linea => {
-        if (linea.includes('dentro de los cinco (5) días')) {
-            const partes = linea.split('dentro de los cinco (5) días');
-            let xPos = margenIzq;
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[0], xPos, y);
-            xPos += doc.getTextWidth(partes[0]);
-            doc.setFont('helvetica', 'bold');
-            doc.text('dentro de los cinco (5) días', xPos, y);
-            xPos += doc.getTextWidth('dentro de los cinco (5) días');
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[1] || '', xPos, y);
-        } else {
-            doc.setFont('helvetica', 'normal');
-            doc.text(linea, margenIzq, y, { align: 'justify', maxWidth: anchoUtil });
-        }
-        y += 0.5;
-    });
-
+    const parrafo1 = [
+        { texto: 'El suscrito Tesorero Municipal de El Banco, Magdalena, en uso de las facultades que le confieren los artículos 533, del Acuerdo Municipal Nº. 018 del 30 de diciembre de 2016, Decreto Municipal Nº 048 de 2024, y el Estatuto Tributario Nacional, se permite comunicar(s) que esta dependencia se encuentra adelantando proceso de ', negrita: false },
+        { texto: 'de Cobro Administrativo Coactivo', negrita: true },
+        { texto: ' a todos los contribuyentes que se encuentran en mora en el pago de Impuestos Predial Unificado.', negrita: false }
+    ];
+    
+    y = textoJustificadoConNegrita(doc, parrafo1, margenIzq, y, anchoUtil, 0.5);
     y += 0.3;
 
-    const texto4 = `En todo caso, si el contribuyente argumenta que se encuentra al día con sus obligaciones, la respuesta al presente oficio `;
-    const texto4Bold = `debe estar acompañada de las pruebas (pagos o acuerdos de pagos)`;
-    const texto4Cont = `, y deberá dirigirse a esta dependencia, en la siguiente dirección `;
-    const texto4Bold2 = `${datosValidados.direccion}`;
-    const texto4Final = `, Palacio Municipal, reiteramos que las pruebas deberán adjuntarse (copia simple).`;
-
-    let lineaTexto4 = texto4 + texto4Bold + texto4Cont + texto4Bold2 + texto4Final;
-    let lineas4 = doc.splitTextToSize(lineaTexto4, anchoUtil);
-    lineas4.forEach(linea => {
-        let xPos = margenIzq;
-        doc.setFont('helvetica', 'normal');
-        
-        if (linea.includes('debe estar acompañada de las pruebas (pagos o acuerdos de pagos)')) {
-            const partes = linea.split('debe estar acompañada de las pruebas (pagos o acuerdos de pagos)');
-            doc.text(partes[0], xPos, y);
-            xPos += doc.getTextWidth(partes[0]);
-            doc.setFont('helvetica', 'bold');
-            doc.text('debe estar acompañada de las pruebas (pagos o acuerdos de pagos)', xPos, y);
-            xPos += doc.getTextWidth('debe estar acompañada de las pruebas (pagos o acuerdos de pagos)');
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[1] || '', xPos, y);
-        } else if (linea.includes(datosValidados.direccion)) {
-            const partes = linea.split(datosValidados.direccion);
-            doc.text(partes[0], xPos, y);
-            xPos += doc.getTextWidth(partes[0]);
-            doc.setFont('helvetica', 'bold');
-            doc.text(datosValidados.direccion, xPos, y);
-            xPos += doc.getTextWidth(datosValidados.direccion);
-            doc.setFont('helvetica', 'normal');
-            doc.text(partes[1] || '', xPos, y);
-        } else {
-            doc.text(linea, margenIzq, y);
-        }
-        y += 0.5;
-    });
-
+    // PÁRRAFO 2
+    const parrafo2 = `Por lo anterior se le notifica de la obligación tributaria que ostenta con la Alcaldía de El Banco, Magdalena, por concepto del NO pago del impuesto Predial Unificado de la(s) vigencia(s) del año, ${datosValidados.periodoLetras} (${datosValidados.periodo}), mediante la (s) cual (es) se determina su obligación por valor de`;
+    y = textoJustificado(doc, parrafo2, margenIzq, y, anchoUtil, 0.5);
+    
+    doc.setFont('helvetica', 'bold');
+    y = textoJustificado(doc, datosValidados.valor, margenIzq, y, anchoUtil, 0.5);
     y += 0.3;
 
-    const texto5 = `Notifíquese al contribuyente con sujeción en lo dispuesto por los artículos 565 del Estatuto Tributario Nacional.`;
-    let lineas5 = doc.splitTextToSize(texto5, anchoUtil);
-    lineas5.forEach(linea => {
-        doc.text(linea, margenIzq, y, { align: 'justify', maxWidth: anchoUtil });
-        y += 0.5;
-    });
+    // PÁRRAFO 3 - con negrita
+    doc.setFont('helvetica', 'normal');
+    const parrafo3 = [
+        { texto: 'En consecuencia, se le solicita que ', negrita: false },
+        { texto: 'dentro de los cinco (5) días', negrita: true },
+        { texto: ' siguientes al recibido de esta comunicación, cumpla con su obligación y cancele los valores adeudados por concepto de pago del Impuesto Predial Unificado aquí señalados.', negrita: false }
+    ];
+    y = textoJustificadoConNegrita(doc, parrafo3, margenIzq, y, anchoUtil, 0.5);
+    y += 0.3;
 
+    // PÁRRAFO 4 - con dos partes en negrita
+    const parrafo4 = [
+        { texto: 'En todo caso, si el contribuyente argumenta que se encuentra al día con sus obligaciones, la respuesta al presente ', negrita: false },
+        { texto: 'oficio debe estar acompañada de las pruebas (pagos o acuerdos de pagos)', negrita: true },
+        { texto: ', y deberá dirigirse a esta dependencia, en la siguiente ', negrita: false },
+        { texto: 'dirección calle 7 # 4 -44, APTO 208', negrita: true },
+        { texto: ', Palacio Municipal, reiteramos que las pruebas deberán adjuntarse (copia simple).', negrita: false }
+    ];
+    y = textoJustificadoConNegrita(doc, parrafo4, margenIzq, y, anchoUtil, 0.5);
+    y += 0.3;
+
+    // PÁRRAFO 5
+    const parrafo5 = 'Notifíquese al contribuyente con sujeción en lo dispuesto por los artículos 565 del Estatuto Tributario Nacional.';
+    y = textoJustificado(doc, parrafo5, margenIzq, y, anchoUtil, 0.5);
     y += 1;
 
     // NOTIFÍQUESE Y CÚMPLASE
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text('NOTIFÍQUESE Y CÚMPLASE', 21.59 / 2, y, { align: 'center' });
-
     y += 2;
 
     // Fecha
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     const textoFecha = `Dado en el Municipio de El Banco Magdalena a los ${datosValidados.fecha}.`;
-    let lineasFecha = doc.splitTextToSize(textoFecha, anchoUtil);
-    lineasFecha.forEach(linea => {
-        doc.text(linea, margenIzq, y, { align: 'justify', maxWidth: anchoUtil });
-        y += 0.5;
-    });
-
+    y = textoJustificado(doc, textoFecha, margenIzq, y, anchoUtil, 0.5);
     y += 2.5;
 
     // Firma
@@ -343,7 +414,7 @@ function generarContenidoPDF(doc) {
     doc.text('_______________________________________', 21.59 / 2, y, { align: 'center' });
     y += 0.7;
     doc.setFont('helvetica', 'bold');
-    doc.text('CIRO/ RAFAEL VARELA PEDROZO', 21.59 / 2, y, { align: 'center' });
+    doc.text('CIRO RAFAEL VARELA PEDROZO', 21.59 / 2, y, { align: 'center' });
     y += 0.5;
     doc.setFont('helvetica', 'normal');
     doc.text('Tesorero Municipal', 21.59 / 2, y, { align: 'center' });
