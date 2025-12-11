@@ -259,7 +259,7 @@ function validarFormulario() {
 }
 
 // Generar PDF directamente sin validación previa
-document.getElementById('generarPDF').addEventListener('click', async function() {
+document.getElementById('generarPdfResolucion').addEventListener('click', async function() {
     // Validar antes de generar
     if (!validarFormulario()) {
         alert('Por favor complete todos los campos correctamente');
