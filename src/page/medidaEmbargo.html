@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/medidaEmbargo.css">
+
+    <title>Formulario de Embargo</title>
+</head>
+<body>
+    <form action="medidadeEmbargo" method="POST">
+        <div>
+            <label for="numeroResolucion">Numero de Resolucion:</label>
+            <input type="text" id="numeroResolucion" name="numeroResolucion" required>
+        </div>
+
+        <div>
+            <label for="fechaResolucion">Fecha de la Resolucion:</label>
+            <input type="date" id="fechaResolucion" name="fechaResolucion" required>
+        </div>
+
+        <div>
+            <label for="numeroResolucionCoactivo">Numero de Resolucion de Coactivo:</label>
+            <input type="number" id="numeroResolucionCoactivo" name="numeroResolucionCoactivo" required>
+        </div>
+
+        <div>
+            <label for="nombreTitular">Nombre de La Titular:</label>
+            <input type="text" id="nombreTitular" name="nombreTitular" required>
+        </div>
+
+        <div>
+            <label for="numeroDocumento">Numero de Documento:</label>
+            <input type="text" id="numeroDocumento" name="numeroDocumento">
+        </div>
+
+        <div>
+            <label for="totalEmbargo">Total del Embargo:</label>
+            <input type="text" id="totalEmbargo" name="totalEmbargo" required>
+        </div>
+        <div>
+            <label for="Alberto">Desconocido esperar A Alberto:</label>
+            <input type="number" id="Alberto" name="Alberto" required>
+        </div>
+
+
+
+        <div>
+            <label for="fechaGeneradoDocumento">Fecha de Generación del Documento:</label>
+            <input type="date" id="fechaGeneradoDocumento" name="fechaGeneradoDocumento" required>
+        </div>
+
+
+    
+        <div class="contenedor-boton">
+        <button class="btn" id="btnGenerarPdf_" type="button" onclick="generarmedidaEmbargo()">Generar PDF</button>
+
+
+        <div id="pdfLoader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+            <div style="text-align:center; color:white;">
+                <div style="border:8px solid #f3f3f3; border-top:8px solid #3498db; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite; margin:0 auto 20px;"></div>
+                <h2>Generando PDF...</h2>
+                <p>Por favor espere</p>
+            </div>
+    </div>
+    </form>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="../page/javacritp/medidaEmbargo.js"></script>
+
+</html>
