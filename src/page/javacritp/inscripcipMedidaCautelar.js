@@ -46,8 +46,11 @@ const { jsPDF } = window.jspdf;
             function formatearFechaCompleta(fecha) {
                 if (!fecha) return '___';
                 const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-                return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', opciones).toUpperCase();
+                return new Date(fecha + 'T00:00:00')
+                    .toLocaleDateString('es-ES', opciones)
+                    .toLowerCase();
             }
+
 
             // HACER QUE NUMERO DE DOCMUENTO QUEDE ASI 1217988920 A 1.216.978.920
             // HACER QUE NUMERO DE DOCUMENTO QUEDE ASI 1217988920 A 1.216.978.920
@@ -93,8 +96,9 @@ const { jsPDF } = window.jspdf;
 
             const DESPEDIDA = `Atentamente,`;
 
-            const FIRMA_SOLICITUD = `CIRO RAFAEL VARELA PEDROZO
-            Tesorero Municipal`;
+            const FIRMA_SOLICITUD = `CIRO RAFAEL VARELA PEDROZO`;
+
+            const puesto_firma = `Tesorero Municipal`;
 
             // ===== CONFIGURACIÓN DE NEGRITAS =====
             const TEXTO_EN_NEGRITA = [
@@ -246,7 +250,7 @@ const { jsPDF } = window.jspdf;
     yPosition += espacioEntreTextos;
 
     agregarTextoConNegritas(ASUNTO, 'left', fontSize);
-    yPosition += espacioEntreTextos * 2;
+    yPosition += espacioEntreTextos;
 
     agregarTextoConNegritas(CUERPO_SOLICITUD, 'left', fontSize);
     yPosition += espacioEntreTextos;
@@ -267,6 +271,10 @@ const { jsPDF } = window.jspdf;
     yPosition += espacioEntreTextos * 4;
 
     agregarTextoConNegritas(FIRMA_SOLICITUD, 'center', fontSize);
+    yPosition += lineHeight;
+
+    agregarTextoConNegritas(puesto_firma, 'center', fontSize);
+    yPosition += lineHeight;
 
     // ===== RESTO SIN CAMBIOS =====
     document.getElementById('pdfLoader').style.display = 'flex';
