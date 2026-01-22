@@ -82,7 +82,7 @@ const { jsPDF } = window.jspdf;
             
             const TEXTO2 = `PRIMERO: Que el Municipio de El Banco, Magdalena, adelanta proceso administrativo de cobro coactivo identificado con el expediente N° ${numeroResolucionCoactivo}, en contra del señor(a) ${nombreTitular}, identificado(a) con cédula de ciudadanía / NIT N° ${numeroDocumento}`;
             
-            const TEXTO3 = `SEGUNDO: Que el contribuyente adeuda al Municipio de El Banco, Magdalena, la suma total de $ ${totalEmbargo} , correspondiente al Impuesto Predial Unificado, conforme al título ejecutivo constituido por ${tituloConstituido}, debidamente ejecutoriado.`;
+            const TEXTO3 = `SEGUNDO: Que el contribuyente adeuda al Municipio de El Banco, Magdalena, la suma total de $ ${totalEmbargo} , correspondiente al Impuesto Predial Unificado, conforme al título ejecutivo constituido en el Mandamiento de Pago debidamente ejecutoriado.`;
             
             const TEXTO4 = `TERCERO: Que la obligación objeto de cobro es clara, expresa y actualmente exigible, en los términos de los artículos 828 y siguientes del Estatuto Tributario Nacional, aplicables por remisión del Estatuto Tributario Municipal.`;
             
