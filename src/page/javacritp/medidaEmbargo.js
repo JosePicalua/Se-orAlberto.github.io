@@ -71,7 +71,6 @@ const { jsPDF } = window.jspdf;
             const numeroDocumento = formatearNumeroDocumento(document.getElementById('numeroDocumento').value) || '___';
             const nombreTitular = document.getElementById('nombreTitular').value || '___';
             const totalEmbargo = formatearTotalEmbargo(document.getElementById('totalEmbargo').value.replace(/\./g, '')) || '___';
-            const tituloConstituido = document.getElementById('tituloConstituido').value || '___';
             const fechaGeneradoDocumento = formatearFechaCompleta(document.getElementById('fechaGeneradoDocumento').value) || '___';
                         // TEXTOS PREDETERMINADOS CON REEMPLAZOS
             const TITULO = `RESOLUCIÓN ${numeroResolucion} DEL ${fechaResolucion}`;
@@ -80,9 +79,9 @@ const { jsPDF } = window.jspdf;
             
             const TEXTO1 = `EL TESORERO MUNICIPAL DE EL BANCO, MAGDALENA, en su calidad de FUNCIONARIO EJECUTOR, en ejercicio de las facultades legales conferidas por el Decreto Municipal N°. 048 de 2024, ACUERDO N° 018, de fecha 30 de diciembre de 2016, Estatuto Tributario Municipal de El Banco Magdalena, el Estatuto Tributario Nacional aplicable por remisión, y CONSIDERANDO,`;
             
-            const TEXTO2 = `PRIMERO: Que el Municipio de El Banco, Magdalena, adelanta proceso administrativo de cobro coactivo identificado con el expediente N° ${numeroResolucionCoactivo}, en contra del señor(a) ${nombreTitular}, identificado(a) con cédula de ciudadanía / NIT N° ${numeroDocumento}`;
+            const TEXTO2 = `PRIMERO: Que el Municipio de El Banco, Magdalena, adelanta proceso administrativo de cobro coactivo, en contra del señor(a) ${nombreTitular}, identificado(a) con cédula de ciudadanía / NIT N° ${numeroDocumento}`;
             
-            const TEXTO3 = `SEGUNDO: Que el contribuyente adeuda al Municipio de El Banco, Magdalena, la suma total de $ ${totalEmbargo} , correspondiente al Impuesto Predial Unificado, conforme al título ejecutivo constituido en el Mandamiento de Pago debidamente ejecutoriado.`;
+            const TEXTO3 = `SEGUNDO: Que el contribuyente adeuda al Municipio de El Banco, Magdalena, la suma total de $ ${totalEmbargo} , correspondiente al Impuesto Predial Unificado, conforme al título ejecutivo constituido en el Mandamiento de Pago con resolucion ${numeroResolucionCoactivo}debidamente ejecutoriado.`;
             
             const TEXTO4 = `TERCERO: Que la obligación objeto de cobro es clara, expresa y actualmente exigible, en los términos de los artículos 828 y siguientes del Estatuto Tributario Nacional, aplicables por remisión del Estatuto Tributario Municipal.`;
             
