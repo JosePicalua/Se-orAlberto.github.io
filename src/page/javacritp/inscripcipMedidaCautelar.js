@@ -75,7 +75,7 @@ const { jsPDF } = window.jspdf;
             // Debería ir en una nueva sección o función separada
 
             // ===== VARIABLES DE CONTENIDO =====
-            const ENCABEZADO_FECHA = `El Banco, Magdalena, a ${fechaResolucion}`;
+            const ENCABEZADO_FECHA = `El Banco, Magdalena, el ${fechaResolucion}`;
 
             const DESTINATARIO_LINEA1 = `Señor:`;
             const DESTINATARIO_LINEA2 = `REGISTRADOR DE INSTRUMENTOS PÚBLICOS`;
