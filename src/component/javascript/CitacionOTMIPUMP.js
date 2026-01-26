@@ -38,7 +38,7 @@ async function generarPDFCitacion() {
     }
     
     const datos = {
-        numeroMandamiento: 'OTMIPUMP2025' + document.getElementById('numeroMandamiento').value.padStart(4, '0'),
+        numeroMandamiento: 'OTMIPUMP2026' + document.getElementById('numeroMandamiento').value.padStart(4, '0'),
         fecha: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
         nombreContribuyente: document.getElementById('nombreContribuyente').value.toUpperCase(),
         numeroCedula: document.getElementById('numeroCedula').value,
