@@ -6,9 +6,99 @@
     <title> Tramites Tesoreria - Alcaldía El Banco</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="src/component/ccs/index.css">
+    <link rel="stylesheet" href="src/page/css/detalleUsuario.css">
 
 </head>
 <body>
+
+    <div class="container">
+        <div class="header">
+            <h1>📋 Sistema de Seguimiento de Resoluciones</h1>
+            <p>Gestión Progresiva de Datos de Resoluciones y Embargos</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button id="toggleMainBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2rem;" onclick="toggleApp()">
+                ➕ Agregar Titular
+            </button>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="content">
+                <div id="message" class="message"></div>
+
+                <div class="form-section">
+                    <h2>➕ Agregar Nuevo Registro (Datos Básicos)</h2>
+                    <form id="basicForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nombre Titular: *</label>
+                                <input type="text" id="nombreTitular" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Número Documento: *</label>
+                                <input type="text" id="numeroDocumento" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Número Inmobiliaria:</label>
+                                <input type="text" id="numeroInmobiliaria">
+                            </div>
+                            <div class="form-group">
+                                <label>Dirección Propiedad:</label>
+                                <input type="text" id="direccionPropiedad">
+                            </div>
+                            <div class="form-group">
+                                <label>Total Endeudamiento:</label>
+                                <input type="number" id="totalEndeudamiento" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Oficio Resolución Persuasión:</label>
+                                <input type="text" id="oficioResolucionPersuacion">
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha Oficio Res. Persuasión:</label>
+                                <input type="date" id="fechaOficioResolucionPersuacion">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">💾 Guardar Registro Básico</button>
+                            <button type="button" class="btn btn-secondary" onclick="clearBasicForm()">🔄 Limpiar</button>
+                            <button type="button" class="btn btn-success" onclick="downloadExcel()">📥 Descargar Excel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-section">
+                    <h2>📊 Registros en Seguimiento</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estado</th>
+                                    <th>Nombre Titular</th>
+                                    <th>N° Documento</th>
+                                    <th>N° Inmobiliaria</th>
+                                    <th>Dirección</th>
+                                    <th>Endeudamiento</th>
+                                    <th>Oficio Persuasión</th>
+                                    <th>Fecha</th>
+                                    <th>Liquidacion Tributario</th>
+                                    <th>Pago Coactivo OTMIPUMP</th>
+                                    <th>Med. Cautelar</th>
+                                    <th>Embargo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container">
         <div class="header">
             <h1>ALCALDÍA DE EL BANCO</h1>
@@ -20,7 +110,7 @@
                 <p>Primer Paso</p>
             </div>
             <div class="menu-option" onclick="openModalResolucion('notoficacionResolucion')">
-                <h2>2. Realizar Contitucion de Oblicación Tributaria Por Concepto de Impuesto Predial (Resolucion)</h2>
+                <h2>2. Liquidacion Tributaria Por Concepto de Impuesto Predial (Resolucion)</h2>
                 <p>Segundo Paso</p>
             </div>
             <div class="menu-option" onclick="openModal('coactivo')">
@@ -186,7 +276,8 @@
     <script src="src/component/javascript/InicioOTMIPUMP.js"></script>          <!-- 2.CODIGO DE CREAR MANDAMIENTO DE PAGO -->
     <script src="src/component/javascript/CitacionOTMIPUMP.js"></script>     <!-- 3. CODIGO DE CITACION -->
     <script src="src/component/javascript/notifications.js"></script> 
-    <script src="src/page/javacritp/modales.js"></script>  <!-- MODALES PARA ABRIR -->
+    <script src="src/page/javacritp/modales.js"></script> 
+    <script src="src/page/javacritp/detalleUsuario.js"></script> <!-- MODALES PARA ABRIR -->
     
          
         

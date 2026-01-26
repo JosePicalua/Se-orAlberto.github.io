@@ -380,7 +380,7 @@ function openModalMedidaCautelar() {
 
         <div class="modal-container">
             <div class="modal-header">
-                <h2>Realizar Inscripcion de Medidca Cautelara </h2>
+                <h2>Realizar Inscripcion de Medida Cautelara </h2>
                 <button class="close-btn" onclick="closeModal('incripcionMedidaCautelar')">&times;</button>
             </div>
             <div class="modal-body">
