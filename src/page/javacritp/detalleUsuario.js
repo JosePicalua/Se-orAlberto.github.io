@@ -1,65 +1,154 @@
 let data = [];
 let editingIndex = -1;
-let fileHandle = null; // Para guardar referencia al archivo
+const CSV_PATH = 'plantillaSeguimiento/detallesUsuario.csv';
 
-// Solicitar acceso al archivo CSV
-async function requestFileAccess() {
+// ========== CONFIGURACIÓN GITHUB ==========
+const GITHUB_CONFIG = {
+    owner: 'JosePicalua',  // Tu usuario de GitHub
+    repo: 'tesoreria.github.io',  // Nombre de tu repositorio
+    branch: 'main',  // Rama principal
+    token: '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',
+    filePath: 'plantillaSeguimiento/detallesUsuario.csv'
+};
+
+// ========== GUARDAR EN GITHUB AUTOMÁTICAMENTE ==========
+async function saveToGitHub() {
     try {
-        const opts = {
-            types: [{
-                description: 'CSV Files',
-                accept: {'text/csv': ['.csv']}
-            }],
-            suggestedName: 'detallesUsuario.csv'
-        };
+        showMessage('⏳ Guardando en GitHub...', 'info');
+
+        // 1. Generar CSV
+        const headers = [
+            'nombreTitular',
+            'numeroDocumento',
+            'numeroInmobiliaria',
+            'direccionPropiedad',
+            'totalEndeudamiento',
+            'oficioResolucionPersuacion',
+            'resolucioncOCTributario',
+            'resolucionOTMIPUMP',
+            'resolucionMedidaCautera',
+            'resolucionEmbargo',
+            'fechaResolucionCOCTributario',
+            'fechaResolucionOTMIPUMP',
+            'fechaResolucionMedidaCautera',
+            'fechaResolucionEmbargo',
+            'observaciones'
+        ];
         
-        fileHandle = await window.showSaveFilePicker(opts);
-        showMessage('✅ Acceso al archivo concedido', 'success');
-        return true;
-    } catch (error) {
-        if (error.name !== 'AbortError') {
-            showMessage('⚠️ Necesitas dar acceso al archivo CSV', 'error');
+        let csvContent = headers.join(',') + '\n';
+        
+        data.forEach(row => {
+            const values = headers.map(header => {
+                let value = String(row[header] || '');
+                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                    value = '"' + value.replace(/"/g, '""') + '"';
+                }
+                return value;
+            });
+            csvContent += values.join(',') + '\n';
+        });
+
+        // 2. Obtener SHA del archivo actual
+        const getFileUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}?ref=${GITHUB_CONFIG.branch}`;
+        
+        const getResponse = await fetch(getFileUrl, {
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+
+        let sha = null;
+        if (getResponse.ok) {
+            const fileData = await getResponse.json();
+            sha = fileData.sha;
         }
+
+        // 3. Actualizar archivo en GitHub
+        const updateUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`;
+        
+        const updateData = {
+            message: `Actualización automática - ${new Date().toLocaleString('es-CO')}`,
+            content: btoa(unescape(encodeURIComponent(csvContent))),
+            branch: GITHUB_CONFIG.branch
+        };
+
+        if (sha) {
+            updateData.sha = sha;
+        }
+
+        const updateResponse = await fetch(updateUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (updateResponse.ok) {
+            showMessage('✅ Guardado automáticamente en GitHub', 'success');
+            return true;
+        } else {
+            const errorData = await updateResponse.json();
+            console.error('Error de GitHub:', errorData);
+            showMessage('❌ Error al guardar en GitHub: ' + errorData.message, 'error');
+            return false;
+        }
+        
+    } catch (error) {
+        console.error('Error al guardar en GitHub:', error);
+        showMessage('❌ Error de conexión con GitHub', 'error');
         return false;
     }
 }
 
+// ========== GUARDAR DATOS (LOCALSTORAGE + GITHUB) ==========
+async function saveDataInternally() {
+    try {
+        // 1. Guardar en localStorage inmediatamente
+        localStorage.setItem('csvData', JSON.stringify(data));
+        actualizarTotalCartera();
+        
+        // 2. Guardar en GitHub en segundo plano
+        await saveToGitHub();
+        
+    } catch (error) {
+        console.error('Error al guardar:', error);
+        showMessage('⚠️ Guardado solo en navegador (sin sincronizar con GitHub)', 'warning');
+    }
+}
 
-
-
-
-// Cargar CSV automáticamente
+// ========== CARGAR CSV DESDE GITHUB ==========
 async function loadCSVData() {
     try {
-        // Primero intentar cargar desde localStorage
-        const savedData = localStorage.getItem('csvData');
-        if (savedData) {
-            data = JSON.parse(savedData);
-            renderTable();
-            actualizarTotalCartera(); // ← Actualizar total al cargar
-            showMessage('✅ Datos cargados desde memoria: ' + data.length + ' registros', 'success');
-            return;
-        }
-
-        // Si no hay datos en localStorage, cargar desde CSV
-        const response = await fetch(CSV_PATH);
+        // Intentar cargar desde GitHub
+        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${CSV_PATH}?t=${Date.now()}`);
+        
         if (!response.ok) {
-            throw new Error('No se pudo cargar el CSV');
+            throw new Error('No se pudo cargar el CSV desde GitHub');
         }
         
         const text = await response.text();
         const rows = text.split('\n').filter(row => row.trim());
         
         if (rows.length <= 1) {
-            data = [];
+            // CSV vacío, intentar cargar desde localStorage
+            const savedData = localStorage.getItem('csvData');
+            if (savedData) {
+                data = JSON.parse(savedData);
+                showMessage('✅ Datos cargados desde navegador: ' + data.length + ' registros', 'success');
+            } else {
+                data = [];
+                showMessage('📄 CSV vacío - Listo para agregar registros', 'success');
+            }
             renderTable();
-            actualizarTotalCartera(); // ← Actualizar total
-            showMessage('📄 CSV vacío - Listo para agregar registros', 'success');
+            actualizarTotalCartera();
             return;
         }
 
-        const headers = rows[0].split(',').map(h => h.trim());
-        
+        // Parsear CSV
         const loadedData = [];
         for (let i = 1; i < rows.length; i++) {
             const values = parseCSVLine(rows[i]);
@@ -86,20 +175,30 @@ async function loadCSVData() {
 
         data = loadedData;
         localStorage.setItem('csvData', JSON.stringify(data));
+        showMessage('✅ CSV cargado desde GitHub: ' + data.length + ' registros', 'success');
+
         renderTable();
-        actualizarTotalCartera(); // ← Actualizar total al cargar
-        showMessage('✅ CSV cargado: ' + data.length + ' registros', 'success');
+        actualizarTotalCartera();
         
     } catch (error) {
         console.error('Error al cargar CSV:', error);
-        data = [];
+        
+        // Si falla, intentar cargar desde localStorage
+        const savedData = localStorage.getItem('csvData');
+        if (savedData) {
+            data = JSON.parse(savedData);
+            showMessage('✅ Datos cargados desde navegador: ' + data.length + ' registros', 'success');
+        } else {
+            data = [];
+            showMessage('⚠️ No se pudo cargar el CSV - Empezando vacío', 'warning');
+        }
+        
         renderTable();
-        actualizarTotalCartera(); // ← Actualizar total
-        showMessage('⚠️ No se pudo cargar el CSV', 'error');
+        actualizarTotalCartera();
     }
 }
 
-// Parser CSV
+// ========== PARSER CSV ==========
 function parseCSVLine(line) {
     const result = [];
     let current = '';
@@ -122,71 +221,7 @@ function parseCSVLine(line) {
     return result;
 }
 
-/// Reemplazar saveDataInternally() con saveToCSV()
-async function saveDataInternally() {
-    await saveToCSV();
-    actualizarTotalCartera(); // ← Actualizar el total después de guardar
-}
-
-// Guardar automáticamente en el CSV
-async function saveToCSV() {
-    try {
-        // Si no tenemos acceso al archivo, solicitarlo
-        if (!fileHandle) {
-            const granted = await requestFileAccess();
-            if (!granted) return;
-        }
-
-        const headers = [
-            'nombreTitular',
-            'numeroDocumento',
-            'numeroInmobiliaria',
-            'direccionPropiedad',
-            'totalEndeudamiento',
-            'oficioResolucionPersuacion',
-            'resolucioncOCTributario',
-            'resolucionOTMIPUMP',
-            'resolucionMedidaCautera',
-            'resolucionEmbargo',
-            'fechaResolucionCOCTributario',
-            'fechaResolucionOTMIPUMP',
-            'fechaResolucionMedidaCautera',
-            'fechaResolucionEmbargo',
-            'observaciones'
-        ];
-        
-        let csv = headers.join(',') + '\n';
-        
-        data.forEach(row => {
-            const values = headers.map(header => {
-                let value = String(row[header] || '');
-                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-                    value = '"' + value.replace(/"/g, '""') + '"';
-                }
-                return value;
-            });
-            csv += values.join(',') + '\n';
-        });
-
-        // Escribir en el archivo
-        const writable = await fileHandle.createWritable();
-        await writable.write(csv);
-        await writable.close();
-
-        // También guardar en localStorage
-        localStorage.setItem('csvData', JSON.stringify(data));
-        
-        showMessage('💾 Guardado automáticamente en CSV', 'success');
-        
-    } catch (error) {
-        console.error('Error al guardar CSV:', error);
-        showMessage('❌ Error al guardar en CSV', 'error');
-    }
-}
-
-
-
-// Exportar a CSV cuando el usuario lo necesite
+// ========== EXPORTAR CSV MANUAL (BACKUP) ==========
 function exportToCSV() {
     try {
         const headers = [
@@ -223,10 +258,10 @@ function exportToCSV() {
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'detallesUsuario.csv';
+        link.download = 'detallesUsuario_backup.csv';
         link.click();
         
-        showMessage('📥 CSV exportado - Copia a plantillaSeguimiento/', 'success');
+        showMessage('📥 CSV exportado como respaldo', 'success');
         
     } catch (error) {
         console.error('Error al exportar:', error);
@@ -234,21 +269,10 @@ function exportToCSV() {
     }
 }
 
-function showMessage(text, type) {
-    const msg = document.getElementById('message');
-    if (msg) {
-        msg.textContent = text;
-        msg.className = 'message ' + type;
-        msg.style.display = 'block';
-        setTimeout(() => {
-            msg.style.display = 'none';
-        }, 5000);
-    }
-}
-
+// ========== FORMULARIO BÁSICO ==========
 const basicForm = document.getElementById('basicForm');
 if (basicForm) {
-    basicForm.addEventListener('submit', function(e) {
+    basicForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = {
@@ -270,10 +294,10 @@ if (basicForm) {
         };
 
         data.push(formData);
-        saveDataInternally();
+        await saveDataInternally();
         clearBasicForm();
         renderTable();
-        showMessage('✅ Registro agregado', 'success');
+        showMessage('✅ Registro agregado y sincronizado con GitHub', 'success');
     });
 }
 
@@ -284,6 +308,7 @@ function clearBasicForm() {
     }
 }
 
+// ========== RENDERIZAR TABLA ==========
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const tableSection = document.querySelector('.table-section');
@@ -296,6 +321,7 @@ function renderTable() {
         if (tableSection) {
             tableSection.style.display = 'none';
         }
+        actualizarTotalCartera();
         return;
     }
 
@@ -319,8 +345,9 @@ function renderTable() {
             <td>${row.numeroDocumento}</td>
             <td>${row.numeroInmobiliaria || '-'}</td>
             <td>${row.direccionPropiedad || '-'}</td>
-            <td>${row.totalEndeudamiento ? '$' + parseFloat(row.totalEndeudamiento).toLocaleString() : '-'}</td>
+            <td>${row.totalEndeudamiento ? '$' + parseFloat(row.totalEndeudamiento).toLocaleString('es-CO') : '-'}</td>
             <td>${row.oficioResolucionPersuacion || '-'}</td>
+            <td>${row.fechaOficioResolucionPersuacion || '-'}</td>
             <td>${row.resolucioncOCTributario ? '✓' : '-'}</td>
             <td>${row.resolucionOTMIPUMP ? '✓' : '-'}</td>
             <td>${row.resolucionMedidaCautera ? '✓' : '-'}</td>
@@ -332,8 +359,11 @@ function renderTable() {
         `;
         tbody.appendChild(tr);
     });
+    
+    actualizarTotalCartera();
 }
 
+// ========== COMPLETAR DATOS ==========
 function completeData(index) {
     editingIndex = index;
     const row = data[index];
@@ -378,7 +408,7 @@ function completeData(index) {
 
 const completeForm = document.getElementById('completeForm');
 if (completeForm) {
-    completeForm.addEventListener('submit', function(e) {
+    completeForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (editingIndex >= 0) {
@@ -392,10 +422,10 @@ if (completeForm) {
             data[editingIndex].fechaResolucionEmbargo = document.getElementById('modal_fechaResolucionEmbargo').value;
             data[editingIndex].observaciones = document.getElementById('modal_observaciones').value;
 
-            saveDataInternally();
+            await saveDataInternally();
             renderTable();
             closeModal();
-            showMessage('✅ Información actualizada', 'success');
+            showMessage('✅ Información actualizada y sincronizada con GitHub', 'success');
         }
     });
 }
@@ -408,12 +438,12 @@ function closeModal() {
     editingIndex = -1;
 }
 
-function deleteRow(index) {
+async function deleteRow(index) {
     if (confirm('¿Estás seguro de eliminar este registro?')) {
         data.splice(index, 1);
-        saveDataInternally();
+        await saveDataInternally();
         renderTable();
-        showMessage('🗑️ Registro eliminado', 'success');
+        showMessage('🗑️ Registro eliminado y sincronizado con GitHub', 'success');
     }
 }
 
@@ -443,18 +473,15 @@ async function toggleApp() {
     }
 }
 
-
-// Función para actualizar el total de cartera desde los datos guardados
+// ========== ACTUALIZAR TOTAL CARTERA ==========
 function actualizarTotalCartera() {
     let total = 0;
     
-    // Sumar todos los totalEndeudamiento del array data
     data.forEach(row => {
         const valor = parseFloat(row.totalEndeudamiento) || 0;
         total += valor;
     });
     
-    // Actualizar el display con formato de moneda
     const totalCarteraDiv = document.getElementById('totalCartera');
     if (totalCarteraDiv) {
         totalCarteraDiv.textContent = '$' + total.toLocaleString('es-CO', {
@@ -464,66 +491,14 @@ function actualizarTotalCartera() {
     }
 }
 
-// También actualizar cuando se renderiza la tabla
-function renderTable() {
-    const tbody = document.getElementById('tableBody');
-    const tableSection = document.querySelector('.table-section');
-    
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-
-    if (data.length === 0) {
-        if (tableSection) {
-            tableSection.style.display = 'none';
-        }
-        actualizarTotalCartera(); // ← Actualizar aunque esté vacío (mostrará $0.00)
-        return;
-    }
-
-    if (tableSection) {
-        tableSection.style.display = 'block';
-    }
-
-    data.forEach((row, index) => {
-        const isComplete = row.resolucioncOCTributario || row.resolucionOTMIPUMP || 
-                          row.resolucionMedidaCautera || row.resolucionEmbargo;
-        
-        const tr = document.createElement('tr');
-        tr.className = isComplete ? 'status-complete' : 'status-incomplete';
-        tr.innerHTML = `
-            <td>
-                ${isComplete ? 
-                    '<span class="badge badge-success">✓ Completo</span>' : 
-                    '<span class="badge badge-warning">⚠ Básico</span>'}
-            </td>
-            <td><strong>${row.nombreTitular}</strong></td>
-            <td>${row.numeroDocumento}</td>
-            <td>${row.numeroInmobiliaria || '-'}</td>
-            <td>${row.direccionPropiedad || '-'}</td>
-            <td>${row.totalEndeudamiento ? '$' + parseFloat(row.totalEndeudamiento).toLocaleString() : '-'}</td>
-            <td>${row.oficioResolucionPersuacion || '-'}</td>
-            <td>${row.resolucioncOCTributario ? '✓' : '-'}</td>
-            <td>${row.resolucionOTMIPUMP ? '✓' : '-'}</td>
-            <td>${row.resolucionMedidaCautera ? '✓' : '-'}</td>
-            <td>${row.resolucionEmbargo ? '✓' : '-'}</td>
-            <td>
-                <button class="btn-complete" onclick="completeData(${index})">➕ Completar</button>
-                <button class="btn-delete" onclick="deleteRow(${index})">🗑️</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-    
-    actualizarTotalCartera(); // ← Actualizar el total después de renderizar
-}
-
-// Actualizar cuando se elimina un registro
-function deleteRow(index) {
-    if (confirm('¿Estás seguro de eliminar este registro?')) {
-        data.splice(index, 1);
-        saveDataInternally(); // Ya incluye actualizarTotalCartera()
-        renderTable();
-        showMessage('🗑️ Registro eliminado', 'success');
+function showMessage(text, type) {
+    const msg = document.getElementById('message');
+    if (msg) {
+        msg.textContent = text;
+        msg.className = 'message ' + type;
+        msg.style.display = 'block';
+        setTimeout(() => {
+            msg.style.display = 'none';
+        }, 5000);
     }
 }
