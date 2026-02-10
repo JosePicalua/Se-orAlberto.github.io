@@ -622,33 +622,28 @@ function formatAndFilterDocument(input) {
     // Realizar la búsqueda
     filterByDocument();
 }
-
 function filterByDocument() {
     const searchInput = document.getElementById('searchDocument');
-    const searchTerm = searchInput.value.trim();
-    
-    currentSearchTerm = searchTerm;
-    
-    if (searchTerm === '') {
-        // Si no hay búsqueda, mostrar todos los registros
+
+    // 🔥 SOLO números para buscar
+    const rawSearch = searchInput.value.replace(/\D/g, '');
+    currentSearchTerm = rawSearch;
+
+    if (rawSearch === '') {
         renderTable();
         hideSearchInfo();
         return;
     }
-    
-    // Filtrar registros que contengan el término de búsqueda
-    // Normalizar: quitar puntos, comas y espacios para la comparación
-    const normalizedSearch = searchTerm.replace(/[.,\s]/g, '');
-    
+
     const filteredData = data.filter(row => {
-        const normalizedDoc = String(row.numeroDocumento || '').replace(/[.,\s]/g, '');
-        return normalizedDoc.includes(normalizedSearch);
+        const doc = String(row.numeroDocumento || '').replace(/\D/g, '');
+        return doc.includes(rawSearch);
     });
-    
-    // Renderizar solo los resultados filtrados
-    renderFilteredTable(filteredData, searchTerm);
-    showSearchInfo(filteredData.length, searchTerm);
+
+    renderFilteredTable(filteredData, searchInput.value);
+    showSearchInfo(filteredData.length, searchInput.value);
 }
+
 
 function renderFilteredTable(filteredData, searchTerm) {
     const tbody = document.getElementById('tableBody');
