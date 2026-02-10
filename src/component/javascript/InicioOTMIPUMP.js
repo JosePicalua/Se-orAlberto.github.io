@@ -476,39 +476,3 @@ async function generarPDF() {
 
 
 
-// total cartera
-// Función para actualizar el total de cartera
-function actualizarTotalCartera() {
-    // Obtener todos los inputs de totalEndeudamiento que existan en la página
-    const inputs = document.querySelectorAll('input[id*="totalEndeudamiento"]');
-    
-    let total = 0;
-    inputs.forEach(input => {
-        const valor = parseFloat(input.value) || 0;
-        total += valor;
-    });
-    
-    // Actualizar el display con formato de moneda
-    const totalCarteraDiv = document.getElementById('totalCartera');
-    totalCarteraDiv.textContent = '$' + total.toLocaleString('es-CO', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-// Agregar event listener al input cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Actualizar cuando cambie cualquier input de endeudamiento
-    document.addEventListener('input', function(e) {
-        if (e.target.id && e.target.id.includes('totalEndeudamiento')) {
-            actualizarTotalCartera();
-        }
-    });
-    
-    // Actualizar al cargar la página
-    actualizarTotalCartera();
-});
-
-// También llamar a actualizarTotalCartera() después de cargar registros desde el CSV
-// Por ejemplo, al final de tu función loadRecords():
-// actualizarTotalCartera();

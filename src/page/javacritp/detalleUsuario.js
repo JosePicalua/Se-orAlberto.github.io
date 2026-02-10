@@ -442,3 +442,88 @@ async function toggleApp() {
         }
     }
 }
+
+
+// Función para actualizar el total de cartera desde los datos guardados
+function actualizarTotalCartera() {
+    let total = 0;
+    
+    // Sumar todos los totalEndeudamiento del array data
+    data.forEach(row => {
+        const valor = parseFloat(row.totalEndeudamiento) || 0;
+        total += valor;
+    });
+    
+    // Actualizar el display con formato de moneda
+    const totalCarteraDiv = document.getElementById('totalCartera');
+    if (totalCarteraDiv) {
+        totalCarteraDiv.textContent = '$' + total.toLocaleString('es-CO', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+}
+
+// También actualizar cuando se renderiza la tabla
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const tableSection = document.querySelector('.table-section');
+    
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+        if (tableSection) {
+            tableSection.style.display = 'none';
+        }
+        actualizarTotalCartera(); // ← Actualizar aunque esté vacío (mostrará $0.00)
+        return;
+    }
+
+    if (tableSection) {
+        tableSection.style.display = 'block';
+    }
+
+    data.forEach((row, index) => {
+        const isComplete = row.resolucioncOCTributario || row.resolucionOTMIPUMP || 
+                          row.resolucionMedidaCautera || row.resolucionEmbargo;
+        
+        const tr = document.createElement('tr');
+        tr.className = isComplete ? 'status-complete' : 'status-incomplete';
+        tr.innerHTML = `
+            <td>
+                ${isComplete ? 
+                    '<span class="badge badge-success">✓ Completo</span>' : 
+                    '<span class="badge badge-warning">⚠ Básico</span>'}
+            </td>
+            <td><strong>${row.nombreTitular}</strong></td>
+            <td>${row.numeroDocumento}</td>
+            <td>${row.numeroInmobiliaria || '-'}</td>
+            <td>${row.direccionPropiedad || '-'}</td>
+            <td>${row.totalEndeudamiento ? '$' + parseFloat(row.totalEndeudamiento).toLocaleString() : '-'}</td>
+            <td>${row.oficioResolucionPersuacion || '-'}</td>
+            <td>${row.resolucioncOCTributario ? '✓' : '-'}</td>
+            <td>${row.resolucionOTMIPUMP ? '✓' : '-'}</td>
+            <td>${row.resolucionMedidaCautera ? '✓' : '-'}</td>
+            <td>${row.resolucionEmbargo ? '✓' : '-'}</td>
+            <td>
+                <button class="btn-complete" onclick="completeData(${index})">➕ Completar</button>
+                <button class="btn-delete" onclick="deleteRow(${index})">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    actualizarTotalCartera(); // ← Actualizar el total después de renderizar
+}
+
+// Actualizar cuando se elimina un registro
+function deleteRow(index) {
+    if (confirm('¿Estás seguro de eliminar este registro?')) {
+        data.splice(index, 1);
+        saveDataInternally(); // Ya incluye actualizarTotalCartera()
+        renderTable();
+        showMessage('🗑️ Registro eliminado', 'success');
+    }
+}
