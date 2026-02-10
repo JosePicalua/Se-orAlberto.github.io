@@ -1,6 +1,32 @@
 let data = [];
 let editingIndex = -1;
-const CSV_PATH = 'plantillaSeguimiento/detallesUsuario.csv';
+let fileHandle = null; // Para guardar referencia al archivo
+
+// Solicitar acceso al archivo CSV
+async function requestFileAccess() {
+    try {
+        const opts = {
+            types: [{
+                description: 'CSV Files',
+                accept: {'text/csv': ['.csv']}
+            }],
+            suggestedName: 'detallesUsuario.csv'
+        };
+        
+        fileHandle = await window.showSaveFilePicker(opts);
+        showMessage('✅ Acceso al archivo concedido', 'success');
+        return true;
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            showMessage('⚠️ Necesitas dar acceso al archivo CSV', 'error');
+        }
+        return false;
+    }
+}
+
+
+
+
 
 // Cargar CSV automáticamente
 async function loadCSVData() {
@@ -10,6 +36,7 @@ async function loadCSVData() {
         if (savedData) {
             data = JSON.parse(savedData);
             renderTable();
+            actualizarTotalCartera(); // ← Actualizar total al cargar
             showMessage('✅ Datos cargados desde memoria: ' + data.length + ' registros', 'success');
             return;
         }
@@ -26,6 +53,7 @@ async function loadCSVData() {
         if (rows.length <= 1) {
             data = [];
             renderTable();
+            actualizarTotalCartera(); // ← Actualizar total
             showMessage('📄 CSV vacío - Listo para agregar registros', 'success');
             return;
         }
@@ -43,30 +71,30 @@ async function loadCSVData() {
                 direccionPropiedad: values[3] || '',
                 totalEndeudamiento: values[4] || '',
                 oficioResolucionPersuacion: values[5] || '',
-                fechaOficioResolucionPersuacion: values[6] || '',
-                resolucioncOCTributario: values[7] || '',
-                resolucionOTMIPUMP: values[8] || '',
-                resolucionMedidaCautera: values[9] || '',
-                resolucionEmbargo: values[10] || '',
-                fechaResolucionCOCTributario: values[11] || '',
-                fechaResolucionOTMIPUMP: values[12] || '',
-                fechaResolucionMedidaCautera: values[13] || '',
-                fechaResolucionEmbargo: values[14] || '',
-                observaciones: values[15] || ''
+                resolucioncOCTributario: values[6] || '',
+                resolucionOTMIPUMP: values[7] || '',
+                resolucionMedidaCautera: values[8] || '',
+                resolucionEmbargo: values[9] || '',
+                fechaResolucionCOCTributario: values[10] || '',
+                fechaResolucionOTMIPUMP: values[11] || '',
+                fechaResolucionMedidaCautera: values[12] || '',
+                fechaResolucionEmbargo: values[13] || '',
+                observaciones: values[14] || ''
             };
             loadedData.push(rowData);
         }
 
         data = loadedData;
-        // Guardar en localStorage
         localStorage.setItem('csvData', JSON.stringify(data));
         renderTable();
+        actualizarTotalCartera(); // ← Actualizar total al cargar
         showMessage('✅ CSV cargado: ' + data.length + ' registros', 'success');
         
     } catch (error) {
         console.error('Error al cargar CSV:', error);
         data = [];
         renderTable();
+        actualizarTotalCartera(); // ← Actualizar total
         showMessage('⚠️ No se pudo cargar el CSV', 'error');
     }
 }
@@ -94,16 +122,69 @@ function parseCSVLine(line) {
     return result;
 }
 
-// Guardar en localStorage (actualización interna)
-function saveDataInternally() {
+/// Reemplazar saveDataInternally() con saveToCSV()
+async function saveDataInternally() {
+    await saveToCSV();
+    actualizarTotalCartera(); // ← Actualizar el total después de guardar
+}
+
+// Guardar automáticamente en el CSV
+async function saveToCSV() {
     try {
+        // Si no tenemos acceso al archivo, solicitarlo
+        if (!fileHandle) {
+            const granted = await requestFileAccess();
+            if (!granted) return;
+        }
+
+        const headers = [
+            'nombreTitular',
+            'numeroDocumento',
+            'numeroInmobiliaria',
+            'direccionPropiedad',
+            'totalEndeudamiento',
+            'oficioResolucionPersuacion',
+            'resolucioncOCTributario',
+            'resolucionOTMIPUMP',
+            'resolucionMedidaCautera',
+            'resolucionEmbargo',
+            'fechaResolucionCOCTributario',
+            'fechaResolucionOTMIPUMP',
+            'fechaResolucionMedidaCautera',
+            'fechaResolucionEmbargo',
+            'observaciones'
+        ];
+        
+        let csv = headers.join(',') + '\n';
+        
+        data.forEach(row => {
+            const values = headers.map(header => {
+                let value = String(row[header] || '');
+                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                    value = '"' + value.replace(/"/g, '""') + '"';
+                }
+                return value;
+            });
+            csv += values.join(',') + '\n';
+        });
+
+        // Escribir en el archivo
+        const writable = await fileHandle.createWritable();
+        await writable.write(csv);
+        await writable.close();
+
+        // También guardar en localStorage
         localStorage.setItem('csvData', JSON.stringify(data));
-        showMessage('💾 Datos actualizados automáticamente', 'success');
+        
+        showMessage('💾 Guardado automáticamente en CSV', 'success');
+        
     } catch (error) {
-        console.error('Error al guardar:', error);
-        showMessage('❌ Error al guardar', 'error');
+        console.error('Error al guardar CSV:', error);
+        showMessage('❌ Error al guardar en CSV', 'error');
     }
 }
+
+
 
 // Exportar a CSV cuando el usuario lo necesite
 function exportToCSV() {
@@ -115,7 +196,6 @@ function exportToCSV() {
             'direccionPropiedad',
             'totalEndeudamiento',
             'oficioResolucionPersuacion',
-            'fechaOficioResolucionPersuacion',
             'resolucioncOCTributario',
             'resolucionOTMIPUMP',
             'resolucionMedidaCautera',
@@ -178,7 +258,6 @@ if (basicForm) {
             direccionPropiedad: document.getElementById('direccionPropiedad').value,
             totalEndeudamiento: document.getElementById('totalEndeudamiento').value,
             oficioResolucionPersuacion: document.getElementById('oficioResolucionPersuacion').value,
-            fechaOficioResolucionPersuacion: document.getElementById('fechaOficioResolucionPersuacion').value,
             resolucioncOCTributario: '',
             resolucionOTMIPUMP: '',
             resolucionMedidaCautera: '',
@@ -242,7 +321,6 @@ function renderTable() {
             <td>${row.direccionPropiedad || '-'}</td>
             <td>${row.totalEndeudamiento ? '$' + parseFloat(row.totalEndeudamiento).toLocaleString() : '-'}</td>
             <td>${row.oficioResolucionPersuacion || '-'}</td>
-            <td>${row.fechaOficioResolucionPersuacion || '-'}</td>
             <td>${row.resolucioncOCTributario ? '✓' : '-'}</td>
             <td>${row.resolucionOTMIPUMP ? '✓' : '-'}</td>
             <td>${row.resolucionMedidaCautera ? '✓' : '-'}</td>
