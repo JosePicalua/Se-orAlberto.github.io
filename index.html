@@ -59,7 +59,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Número Inmobiliaria:</label>
+                                <label>Cedula Catastral:</label>
                                 <input type="text" id="numeroInmobiliaria">
                             </div>
                             
@@ -90,31 +90,89 @@
                     </form>
                 </div>
 
-                <div class="table-section" style="display: none;">
-                    <h2>📊 Registros en Seguimiento</h2>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Estado</th>
-                                    <th>Nombre Titular</th>
-                                    <th>N° Documento</th>
-                                    <th>N° Inmobiliaria</th>
-                                    <th>Dirección</th>
-                                    <th>Endeudamiento</th>
-                                    <th>Oficio Persuasión</th>
-                                    <th>Fecha</th>
-                                    <th>Liquidacion Tributario</th>
-                                    <th>Pago Coactivo OTMIPUMP</th>
-                                    <th>Med. Cautelar</th>
-                                    <th>Embargo</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody"></tbody>
-                        </table>
-                    </div>
+                <style>
+                :root {
+                    /* VARIABLE PARA AJUSTAR EL ALTO: Cámbiala aquí y afectará a toda la tabla */
+                    --tabla-max-height: 500px; 
+                    --verde-equilibrado: #a8d5ba;
+                }
+
+                .table-section {
+                    margin-top: 20px;
+                }
+
+                /* CONTENEDOR CON SCROLL HORIZONTAL Y VERTICAL */
+                .table-container {
+                    width: 100%;
+                    max-height: var(--tabla-max-height); /* Uso de la variable */
+                    overflow-x: auto;  /* Barra horizontal */
+                    overflow-y: auto;  /* Barra vertical si excede el alto */
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    min-width: 1200px; /* Obliga a que aparezca el scroll horizontal si la pantalla es chica */
+                    font-family: sans-serif;
+                    font-size: 0.9rem;
+                }
+
+                thead th {
+                    position: sticky; /* Para que el encabezado no se pierda al bajar */
+                    top: 0;
+                    background-color: var(--verde-equilibrado);
+                    color: #2d4a3e;
+                    padding: 12px;
+                    text-align: left;
+                    white-space: nowrap; /* Evita que los títulos se amontonen en varias líneas */
+                }
+
+                tbody td {
+                    padding: 10px;
+                    border-bottom: 1px solid #eee;
+                    white-space: nowrap; /* Mantiene los datos en una sola línea */
+                }
+
+                /* Estilo opcional para la barra de desplazamiento (más elegante) */
+                .table-container::-webkit-scrollbar {
+                    height: 8px;
+                    width: 8px;
+                }
+                .table-container::-webkit-scrollbar-thumb {
+                    background: #ccc;
+                    border-radius: 4px;
+                }
+            </style>
+
+            <div class="table-section">
+                <h2>📊 Registros en Seguimiento</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Nombre Titular</th>
+                                <th>N° Documento</th>
+                                <th>N° Inmobiliaria</th>
+                                <th>Dirección</th>
+                                <th>Endeudamiento</th>
+                                <th>Oficio Persuasión</th>
+                                <th>Fecha</th>
+                                <th>Liquidacion Tributario</th>
+                                <th>Pago Coactivo OTMIPUMP</th>
+                                <th>Med. Cautelar</th>
+                                <th>Embargo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
                 </div>
+            </div>
             </div>
         </div>
     </div>
