@@ -316,7 +316,7 @@ function clearBasicForm() {
     }
 }
 
-// ========== RENDERIZAR TABLA ==========
+// ========== RENDERIZAR TABLA CON COLORES POR FECHA ==========
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     const tableSection = document.querySelector('.table-section');
@@ -341,8 +341,26 @@ function renderTable() {
         const isComplete = row.resolucioncOCTributario || row.resolucionOTMIPUMP || 
                           row.resolucionMedidaCautera || row.resolucionEmbargo;
         
+        // Extraer y calcular días desde la fecha del oficio
+        const daysSinceResolution = extractAndCalculateDays(row.oficioResolucionPersuacion);
+        
         const tr = document.createElement('tr');
-        tr.className = isComplete ? 'status-complete' : 'status-incomplete';
+        
+        // Aplicar color según días transcurridos
+        if (daysSinceResolution === 'invalid') {
+            // Fecha no reconocida - ROJO
+            tr.className = 'row-red';
+        } else if (daysSinceResolution !== null && typeof daysSinceResolution === 'number') {
+            if (daysSinceResolution < 60) {
+                tr.className = 'row-yellow'; // Menos de 60 días - Amarillo
+            } else {
+                tr.className = 'row-blue'; // 60 días o más - Azul
+            }
+        } else {
+            // Si no hay fecha (campo vacío), usar el estilo por defecto según completitud
+            tr.className = isComplete ? 'status-complete' : 'status-incomplete';
+        }
+        
         tr.innerHTML = `
             <td>
                 ${isComplete ? 
@@ -370,6 +388,68 @@ function renderTable() {
     
     actualizarTotalCartera();
 }
+
+// ========== FUNCIÓN PARA EXTRAER FECHA Y CALCULAR DÍAS ==========
+// ========== MODIFICACIÓN 1: En la función extractAndCalculateDays ==========
+// UBICACIÓN: Línea 390 aproximadamente
+// REEMPLAZA la función completa con esta versión:
+
+function extractAndCalculateDays(oficioText) {
+    if (!oficioText || oficioText.trim() === '') {
+        return null;
+    }
+    
+    // Patrón para extraer fechas como "05 DE AGOSTO DE 2025"
+    // Busca: DD DE MES DE AAAA
+    const regexFecha = /(\d{1,2})\s+DE\s+([A-ZÁÉÍÓÚÑ]+)\s+DE\s+(\d{4})/i;
+    const match = oficioText.match(regexFecha);
+    
+    if (!match) {
+        return 'invalid'; // CAMBIO: Retorna 'invalid' en lugar de null
+    }
+    
+    const dia = parseInt(match[1]);
+    const mesTexto = match[2].toUpperCase();
+    const anio = parseInt(match[3]);
+    
+    // Mapeo de meses en español a números
+    const meses = {
+        'ENERO': 0,
+        'FEBRERO': 1,
+        'MARZO': 2,
+        'ABRIL': 3,
+        'MAYO': 4,
+        'JUNIO': 5,
+        'JULIO': 6,
+        'AGOSTO': 7,
+        'SEPTIEMBRE': 8,
+        'OCTUBRE': 9,
+        'NOVIEMBRE': 10,
+        'DICIEMBRE': 11
+    };
+    
+    const mesNumero = meses[mesTexto];
+    
+    if (mesNumero === undefined) {
+        return 'invalid'; // CAMBIO: Retorna 'invalid' en lugar de null
+    }
+    
+    // Crear objeto Date con la fecha extraída
+    const fechaResolucion = new Date(anio, mesNumero, dia);
+    
+    // Obtener fecha actual
+    const fechaActual = new Date();
+    
+    // Calcular diferencia en milisegundos
+    const diferenciaMilisegundos = fechaActual - fechaResolucion;
+    
+    // Convertir a días
+    const diasTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+    
+    return diasTranscurridos;
+}
+
+
 
 // ========== COMPLETAR DATOS ==========
 function completeData(index) {
@@ -601,14 +681,24 @@ function renderFilteredTable(filteredData, searchTerm) {
         const isComplete = row.resolucioncOCTributario || row.resolucionOTMIPUMP || 
                           row.resolucionMedidaCautera || row.resolucionEmbargo;
         
-        const tr = document.createElement('tr');
-        tr.className = isComplete ? 'status-complete' : 'status-incomplete';
+        // Extraer y calcular días desde la fecha del oficio
+        const daysSinceResolution = extractAndCalculateDays(row.oficioResolucionPersuacion);
         
-        // Resaltar el número de documento que coincide
-        let highlightedDoc = row.numeroDocumento;
-        if (searchTerm) {
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            highlightedDoc = String(row.numeroDocumento).replace(regex, '<mark>$1</mark>');
+        const tr = document.createElement('tr');
+        
+        // Aplicar color según días transcurridos
+        if (daysSinceResolution === 'invalid') {
+            // Fecha no reconocida - ROJO
+            tr.className = 'row-red';
+        } else if (daysSinceResolution !== null && typeof daysSinceResolution === 'number') {
+            if (daysSinceResolution < 60) {
+                tr.className = 'row-yellow'; // Menos de 60 días - Amarillo
+            } else {
+                tr.className = 'row-blue'; // 60 días o más - Azul
+            }
+        } else {
+            // Si no hay fecha válida, usar el estilo por defecto según completitud
+            tr.className = isComplete ? 'status-complete' : 'status-incomplete';
         }
         
         tr.innerHTML = `

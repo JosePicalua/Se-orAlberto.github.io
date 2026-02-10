@@ -92,6 +92,26 @@
                     <button class="btn-clear-search" onclick="clearSearch()">✖ Limpiar</button>
                 </div>
 
+                <!-- LEYENDA DE COLORES -->
+                <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <!-- Indicador Azul -->
+                    <div style="display: flex; align-items: center; gap: 12px; background: #e3f2fd; padding: 12px 20px; border-radius: 8px; border-left: 8px solid #0288d1; box-shadow: 0 2px 4px rgba(2, 136, 209, 0.2);">
+                        <div style="width: 24px; height: 24px; background: #0288d1; border-radius: 4px; flex-shrink: 0;"></div>
+                        <span style="font-weight: 600; color: #01579b; font-size: 0.95rem;">2 meses cumplidos de notificación</span>
+                    </div>
+                    
+                    <!-- Indicador Amarillo -->
+                    <div style="display: flex; align-items: center; gap: 12px; background: #fff9e6; padding: 12px 20px; border-radius: 8px; border-left: 8px solid #ff9800; box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2);">
+                        <div style="width: 24px; height: 24px; background: #ff9800; border-radius: 4px; flex-shrink: 0;"></div>
+                        <span style="font-weight: 600; color: #e65100; font-size: 0.95rem;">Pendiente a cumplir 2 meses de notificación</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 12px; background: #fff9e6; padding: 12px 20px; border-radius: 8px; border-left: 8px solid #f44336; box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);">
+                        <div style="width: 24px; height: 24px; background: #f44336; border-radius: 4px; flex-shrink: 0;"></div>
+                        <span style="font-weight: 600; color: #e65100; font-size: 0.95rem;">Fecha no reconocida en el Resolucion</span>
+                    </div>
+                </div>
+
                 <!-- INFORMACIÓN DE RESULTADOS -->
                 <div class="results-info" id="resultsInfo" style="display: none;">
                     <span id="resultsCount"></span>

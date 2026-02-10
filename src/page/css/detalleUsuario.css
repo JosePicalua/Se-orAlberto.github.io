@@ -471,7 +471,7 @@ mark {
 }
 
 /* =====================================================
-   TABLA
+   TABLA CON SEPARACIÓN DE FILAS
    ===================================================== */
 
 .table-section {
@@ -501,7 +501,8 @@ mark {
 
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate !important;
+    border-spacing: 0 8px !important;
     min-width: 1200px;
     font-family: inherit;
     font-size: 0.9rem;
@@ -510,7 +511,7 @@ table {
 thead th {
     position: sticky;
     top: 0;
-    background: var(--table-header-bg);
+    background-color: var(--table-header-bg);
     color: var(--table-header-color);
     padding: 15px 12px;
     text-align: left;
@@ -520,40 +521,148 @@ thead th {
     font-size: 0.8rem;
     letter-spacing: 0.5px;
     z-index: 10;
-    border-bottom: 2px solid var(--table-header-color);
+    border: none;
+}
+
+thead th:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+thead th:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 tbody td {
     padding: 12px;
-    border-bottom: 1px solid var(--table-border);
+    border: none;
     white-space: nowrap;
 }
 
 tbody tr {
-    transition: all var(--transition-speed);
+    transition: all 0.3s;
 }
 
-tbody tr:hover {
-    background: var(--table-hover);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+tbody tr td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
 }
 
+tbody tr td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* =====================================================
+   COLORES DE FILAS POR FECHA - ESTILO NOTIFICACIÓN
+   ===================================================== */
+
+/* AMARILLO - Menos de 60 días (URGENTE) */
+.row-yellow {
+    background: #fff9e6 !important;
+    border-left: 8px solid #ff9800 !important;
+    box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3) !important;
+}
+
+.row-yellow td {
+    border-top: 3px solid #ffe0b2;
+    border-bottom: 3px solid #ffe0b2;
+}
+
+.row-yellow td:first-child {
+    border-left: 8px solid #ff9800;
+}
+
+.row-yellow td:last-child {
+    border-right: 3px solid #ffe0b2;
+}
+
+.row-yellow:hover {
+    background: #ffecb3 !important;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
+    transform: scale(1.015);
+    border-left: 8px solid #f57c00 !important;
+}
+
+/* AZUL - 60 días o más */
+.row-blue {
+    background: #e3f2fd !important;
+    border-left: 8px solid #0288d1 !important;
+    box-shadow: 0 2px 6px rgba(2, 136, 209, 0.3) !important;
+}
+
+.row-blue td {
+    border-top: 3px solid #b3e5fc;
+    border-bottom: 3px solid #b3e5fc;
+}
+
+.row-blue td:first-child {
+    border-left: 8px solid #0288d1;
+}
+
+.row-blue td:last-child {
+    border-right: 3px solid #b3e5fc;
+}
+
+.row-blue:hover {
+    background: #bbdefb !important;
+    box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4) !important;
+    transform: scale(1.015);
+    border-left: 8px solid #0277bd !important;
+}
+
+/* Estilos fallback para registros sin fecha */
 .status-complete {
     background: #d4edda !important;
+    border-left: 6px solid #28a745 !important;
 }
 
 .status-incomplete {
     background: #fff3cd !important;
+    border-left: 6px solid #ffc107 !important;
 }
 
+
+
+.row-red {
+    background: #ffebee !important;
+    border-left: 8px solid #f44336 !important;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3) !important;
+}
+
+.row-red td {
+    border-top: 3px solid #ffcdd2;
+    border-bottom: 3px solid #ffcdd2;
+}
+
+.row-red td:first-child {
+    border-left: 8px solid #f44336;
+}
+
+.row-red td:last-child {
+    border-right: 3px solid #ffcdd2;
+}
+
+.row-red:hover {
+    background: #ffcdd2 !important;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4) !important;
+    transform: scale(1.015);
+    border-left: 8px solid #d32f2f !important;
+}
+/* =====================================================
+   BADGES
+   ===================================================== */
+
 .badge {
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: inline-block;
 }
 
 .badge-success {
@@ -563,7 +672,7 @@ tbody tr:hover {
 
 .badge-warning {
     background: var(--warning-color);
-    color: var(--gray-900);
+    color: #333;
 }
 
 /* Barras de scroll personalizadas */
