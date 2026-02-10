@@ -104,12 +104,13 @@
                 /* CONTENEDOR CON SCROLL HORIZONTAL Y VERTICAL */
                 .table-container {
                     width: 100%;
-                    max-height: var(--tabla-max-height); /* Uso de la variable */
-                    overflow-x: auto;  /* Barra horizontal */
-                    overflow-y: auto;  /* Barra vertical si excede el alto */
+                    max-height: var(--tabla-max-height); 
+                    overflow-x: auto;  /* Controla el movimiento Izquierda/Derecha */
+                    overflow-y: auto;  /* Controla el movimiento Arriba/Abajo */
                     border: 1px solid #ddd;
                     border-radius: 8px;
                     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                    
                 }
 
                 table {
@@ -144,6 +145,11 @@
                 .table-container::-webkit-scrollbar-thumb {
                     background: #ccc;
                     border-radius: 4px;
+                }
+                .table {
+                    /* Si ves que las columnas están muy apretadas, aumenta este número (ej. 1500px) */
+                    /* Si quieres que se vea más compacta, disminúyelo (ej. 800px) */
+                    min-width: 1200px; 
                 }
             </style>
 
