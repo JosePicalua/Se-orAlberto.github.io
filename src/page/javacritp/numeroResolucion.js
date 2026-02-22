@@ -332,15 +332,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('añoPredialFactura').setAttribute('readonly', true);
 });
 
-function cerrarModal() {
+function closeModala(type) {
     try {
-        if (window.parent && window.parent.document) {
-            const modal = window.parent.document.getElementById('modalOverlay');
-            if (modal) modal.remove();
+        const modal = document.getElementById('resolucion');
+        
+        if (modal) {
+            // 1. ELIMINA ESTA LÍNEA (es la que causa el bloqueo):
+            // modal.style.display = 'none'; 
+
+            // 2. USA SOLO ESTA (asegúrate de que en tu CSS .active tenga display: block o flex)
+            modal.classList.remove('active');
         }
-    } catch (error) {
-        console.error('Error al cerrar modal:', error);
+    } catch (e) {
+        console.error("Error al cerrar:", e);
     }
 }
 
-window.cerrarModal = cerrarModal;

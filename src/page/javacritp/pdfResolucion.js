@@ -595,3 +595,19 @@ function agregarTextoConNegritas(doc, partes, x, y, maxWidth, lineHeight) {
     
     return y;
 }
+
+function closeModal(type) {
+    try {
+        const modal = document.getElementById('resolucion');
+        
+        if (modal) {
+            // 1. ELIMINA ESTA LÍNEA (es la que causa el bloqueo):
+            // modal.style.display = 'none'; 
+
+            // 2. USA SOLO ESTA (asegúrate de que en tu CSS .active tenga display: block o flex)
+            modal.classList.remove('active');
+        }
+    } catch (e) {
+        console.error("Error al cerrar:", e);
+    }
+}

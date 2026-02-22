@@ -433,7 +433,7 @@ document.getElementById('cedula').addEventListener('input', function(e) {
 function cerrarModal() {
     try {
         if (window.parent && window.parent.document) {
-            const modalPersuasivo = window.parent.document.getElementById('modalOverlay_persuacivo');
+            const modalPersuasivo = window.parent.document.getElementById('modalPersuasivo');
             if (modalPersuasivo) modalPersuasivo.remove();
         }
     } catch (error) {
